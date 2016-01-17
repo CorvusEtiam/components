@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <exception>
 #include "entitymanager.hpp"
 #include "defs.hpp"
 
@@ -24,11 +25,14 @@ public:
         movementSys.setWorld(this);
         collisionSys.setWorld(this);
         game = _game; 
-        this->loadMapFile("media/simplemap.csv");
+        std::string tilename = "media/simplemap.csv";
+        if ( ! loadMapFile(tilename) )  {
+            std::logic_error("COULDN'T LOAD TILEMAP --" + tilename);
+        }
     }
     Entity& getPlayer();
-    void loadMapFile(const std::string& path); 
-    void loadMap(std::vector<std::vector<uint> > _map );
+    bool loadMapFile(const std::string& path); 
+    void loadMap(std::vector<std::vector<uint> >& _map );
     void draw();
     void update();
     uint width;

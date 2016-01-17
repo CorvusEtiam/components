@@ -44,10 +44,11 @@ std::vector<std::string> split(std::string str, char sep) {
 }
 
 
-void World::loadMapFile(const std::string& path)
+bool World::loadMapFile(const std::string& path)
 {
     Vector2D vec;
     std::ifstream file(path);
+    if ( !file ) { return false; }
     std::string line;
     
     std::getline(file, line);
@@ -59,27 +60,37 @@ void World::loadMapFile(const std::string& path)
         line.resize(width);
     }
     
-    std::vector<std::string> item;
     int x = 0, y = 0;
     while ( std::getline(file, line) ) {
-        item = split(line, ';');
+        if ( line[0] == '#' || line[1] == '@' ) { 
+            /*
+             *   # are comments
+             *   @ are metadata -- metadata are useful for stuff like legend with all used symbols on map
+             */
+
+#ifdef DEBUG_MAP_DATA
+            std::cout << line << std::endl;
+#endif
+            continue; 
+        } 
+        auto item = split(line, ';');
         for ( auto chr : item ) {
-            vec[y][x++] = std::stoi(chr); 
+            vec[x++][y] = std::stoi(chr); 
         }
+        x = 0;
         y++;
     }
     loadMap(vec);
+    return true;
 }
 
-
-void World::loadMap(Vector2D _map)
+void World::loadMap(Vector2D& _map)
 {
         map.resize(height);
         for ( auto& line : map ) {
             line.resize(width);
         }
-        std::cout << map.size() << " : " << map[0].size() << std::endl;
-   
+        std::cout << width << " ::: " << height << std::endl;
         for ( uint y = 0; y < height; ++y ) {
             for ( uint x = 0; x < width; ++x ) {
                 Entity entity = createEntity(_map[y][x]);
@@ -88,17 +99,17 @@ void World::loadMap(Vector2D _map)
                 map[y][x].push_back(id);
            }
         }
-        for ( auto ent : emgr.entities ) {
-            std::cout << ent.first << " " << ent.second.id << std::endl;
-        }
+        std::cout << "HERE" << std::endl;
         auto id = emgr.createEntity(Kind::Player);
         emgr.getCompManager(id).createComponent<Display>(sf::Color::Black, sf::Color::Blue, '@')
             .createComponent<Position>(2,2);
         map[2][2].push_back(id);
+        std::cout << "DONE: " << id << std::endl;
 }
 
 void World::draw()
 {       
+    std::cout << "*DRAW*" << std::endl;
     uint y, x;
     for ( y = 0; y < width; ++y ) {
         for (  x = 0; x < height; ++x ) {
@@ -116,11 +127,12 @@ void World::draw()
         
         }
     }
+    std::cout << "*DRAW END*" << std::endl;
 }
 
 void World::update()
 {
-    
+    std::cout << "*UPDATE*" << std::endl;
     uint y, x, handle;
     for ( y = 0; y < width; ++y ) {
         for (  x = 0; x < height; ++x ) {
@@ -131,8 +143,7 @@ void World::update()
              std::cout << std::endl;
         }
     }
-    std::cout << emgr.getEntity(2).cmgr.getComponent<Floor>()->passable << std::endl;
-    std::cout << "UPDATE" << std::endl;
+    std::cout << "*UPDATE END*" << std::endl;
 }
 
 
