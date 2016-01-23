@@ -3,7 +3,20 @@
 #include "entitymanager.hpp"
 #include "defs.hpp"
 
-using EntityList = std::vector<uint>;
+struct EntityList {
+    uint floor;
+    uint actor;
+    std::vector<uint> objects;
+    EntityList() {
+        haveActor = haveFloor = haveObjects = false;
+        floor = actor = 0;
+    }
+    
+    bool haveFloor;
+    bool haveActor;
+    bool haveObjects;
+};
+
 using TileMap    = std::vector<std::vector< EntityList > >;
 using Vector2D =  std::vector<std::vector<uint>>;    
 
@@ -24,11 +37,14 @@ public:
         movementSys.setWorld(this);
         collisionSys.setWorld(this);
         game = _game; 
-        this->loadMapFile("media/simplemap.csv");
+        if ( !this->loadMapFile("media/simplemap.csv")) {
+            std::logic_error("Cannot load simplemap.csv");
+        }
     }
     Entity& getPlayer();
-    void loadMapFile(const std::string& path); 
-    void loadMap(std::vector<std::vector<uint> > _map );
+    void displayMap();
+    bool loadMapFile(const std::string& path); 
+    void loadMap(Vector2D& _map );
     void draw();
     void update();
     uint width;

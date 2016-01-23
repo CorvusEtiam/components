@@ -3,26 +3,18 @@
 #pragma once
 #include "componentmanager.hpp"
 #include "util.hpp"
+#include "eventhandler.hpp"
 
-static GenerateId generator;
 class World;
 struct Entity {
 public:
-  Entity() {
-    id = generator();
-  }
-  
-  ~Entity() {
-    generator(id);
-  }
- 
-  
-  
+  Entity() {}
   
   bool operator==(Entity& other) {
     return other.id == id;
   }
-  
+ 
+  EventHandler evmgr;
   ComponentManager cmgr;
   World * world;
   uint id;

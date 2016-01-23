@@ -31,5 +31,9 @@ public:
   void draw();
   void input();
   void update();
-  
+private:
+  bool left;
+  bool right;
+  bool top;
+  bool down;
 };

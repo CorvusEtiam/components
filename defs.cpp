@@ -15,8 +15,7 @@ void DisplaySystem::draw(Entity& entity, char alter_code) {
       auto display = entity.cmgr.getComponent<Display>();
       auto position = entity.cmgr.getComponent<Position>();
       sf::RectangleShape rect;
-      sf::Text text;
-      
+      sf::Text text;      
       rect.setPosition({position->x * 20.f, position->y * 20.f});
       rect.setSize({20.f, 20.f});
       rect.setFillColor(display->background);
@@ -33,43 +32,55 @@ void DisplaySystem::draw(Entity& entity) {
       auto position = entity.cmgr.getComponent<Position>();
       sf::RectangleShape rect;
       sf::Text text;
-//      std::cout << "SET DRAW" << std::endl;
       rect.setPosition(sf::Vector2f(position->x * 20.f, position->y * 20.f));
       rect.setSize({20.f, 20.f});
       rect.setFillColor(display->background);
-//      std::cout << "*" << std::endl;
       text.setFont(getWorld()->game->font);
       text.setString(sf::String(display->code));
       text.setColor(display->foreground);
       text.setPosition(position->x * 20.f + 3, position->y * 20.f - 3);
       text.setCharacterSize(18);
-//      std::cout << "**" << std::endl;
       getWorld()->game->window.draw(rect);
       getWorld()->game->window.draw(text);
 
 }
 
+/*
+ 
+#####
+#####
+###0#
+#####
+ 
+*/
 
 void MovementSystem::update(Entity& entity, int dx, int dy)
 {
-    auto pos = entity.cmgr.getComponent<Position>();
-    std::vector<uint>& vec = getWorld()->map[pos->x][pos->y];
-    vec.erase(std::remove(std::begin(vec), std::end(vec), entity.id));
-    if ( ( pos->x + dx >= 0 && pos->x + dx < getWorld()->width )  &&
-         ( pos->y + dy >= 0 && pos->y + dy < getWorld()->height ) &&
-         ( getWorld()->collisionSys.check(entity, pos->x+dx, pos->y+dy) ) ) {
-        pos->x += dx;
-        pos->y += dy; 
+    auto position = entity.cmgr.getComponent<Position>();
+    std::cout << position->x << " + " << dx << " " << position->y << " + " << dy << std::endl;
+    if ( ( position->x + dx < 0 || position->x + dx >= getWorld()->width ) ||
+         ( position->y + dy < 0 || position->y + dy >= getWorld()->height ) ) {
+            return;
+        }
+    auto floor = getWorld()->emgr.getCompManager(getWorld()->map[position->x+dx][position->y+dy].floor).getComponent<Floor>();
+    if ( floor->passable ) {
+        getWorld()->map[position->x][position->y].haveActor = false;
+        getWorld()->map[position->x+dx][position->y+dy].actor = getWorld()->map[position->x][position->y].actor;
+        getWorld()->map[position->x+dx][position->y+dy].haveActor = true;
+        position->x += dx;
+        position->y += dy;
     }
-    
-    getWorld()->map[pos->x][pos->y].push_back(entity.id);
 }
 
-bool CollisionSystem::check(Entity& entity, float x, float y)
+
+
+bool CollisionSystem::check(Entity& entity, uint x, uint y)
 {
+    std::cout << "MOVED -> " << x << " " << y << std::endl;
     EntityList list = getWorld()->map[x][y];
-    if ( list.size() == 1 ) {
-        return getWorld()->emgr.getComponentFromEntity<Floor>(list[0])->passable;
+    if ( list.haveFloor && !list.haveActor ) {
+        Floor * f = getWorld()->emgr.getComponentFromEntity<Floor>(list.floor);
+        return f->passable;
     } else {
         return false;
     }

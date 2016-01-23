@@ -41,7 +41,13 @@ struct Floor   : public IComponent {
     
 };
 
-
+struct Description : public IComponent {
+    std::string name;
+    Description() {}
+    Description(std::string s) { name = s; }
+    ~Description() {}
+    
+};
 
 class World;
 struct Entity;
@@ -62,5 +68,5 @@ public:
 class CollisionSystem : public ISystem {
 public:
     void update(Entity&) {}
-    bool check(Entity& entity, float x, float y);
+    bool check(Entity& entity, uint x, uint y);
 };

@@ -111,3 +111,6 @@ targets=1
 
 [Launch]
 Launch Configurations=
+
+[Project]
+VersionControlSupport=kdevgit

@@ -5,15 +5,12 @@ void Game::mainloop() {
     while ( running ) {
         window.clear(sf::Color::Black);
         input();
-        draw();
-        if ( ! waiting ) { // -- turn based -- 
-            window.clear(sf::Color::Black);
+        if ( !waiting ) {
             update();
-            draw();
         }
-         window.display();
+        draw();
+        window.display();
     }
-    
 }
 
 void Game::draw() {
@@ -28,21 +25,29 @@ void Game::input() {
       running = false;
     } else if ( ev.type == sf::Event::KeyPressed ) {
         if ( sf::Keyboard::isKeyPressed(sf::Keyboard::W) ) {
-            world.movementSys.update(world.getPlayer(), 0, -1);
+            top = true; left = right = down = waiting = false;
         } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::S) ) {
-            world.movementSys.update(world.getPlayer(), 0, 1);
+            down = true; left = right = top = waiting =  false;
         } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) ) {
-            world.movementSys.update(world.getPlayer(), -1, 0);
+            left = true; top = right = down = waiting =  false;
         } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::D) ) {
-            world.movementSys.update(world.getPlayer(), 1, 0);
-        }
-        waiting = false;
-    }
-        
+            right = true; left = top = down = waiting =  false;
+        } 
+    }   
     }
 }
 
 void Game::update() {
+    if ( left ) {
+        world.movementSys.update(world.getPlayer(), -1, 0);
+    } else if ( right ) {
+        world.movementSys.update(world.getPlayer(), 1, 0);
+    } else if ( top ) {
+        world.movementSys.update(world.getPlayer(), 0, -1);
+    } else if ( down ) {
+        world.movementSys.update(world.getPlayer(), 0, 1);
+    }
     world.update();
+    waiting = true;
 }
 

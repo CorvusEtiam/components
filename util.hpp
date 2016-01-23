@@ -21,33 +21,5 @@ inline std::size_t getTypeId() noexcept {
   return typeId;
 }
 
-struct GenerateId {
-    private:
-        uint id;
-        std::stack<uint> freeId;
-    public:
-        GenerateId() { id = 0; }
-        uint operator()() {
-            if ( !freeId.empty() ) {
-                auto val = freeId.top();
-                freeId.pop();
-                return val;
-            } else {
-                auto old = id;
-                id += 1;
-                return old;
-            }
-        }
-
-        void operator()(uint _id) {
-            freeId.push(_id);
-        }
-}; 
-
-
-
-
-#define abstract /* abstract */
-#define VDEST(CLS) ~CLS() {}
 
 #endif /* UTIL */

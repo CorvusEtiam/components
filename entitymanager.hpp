@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <queue>
 #include <type_traits>
 #include "entity.hpp"
 #include "system.hpp"
@@ -15,22 +16,13 @@ enum class Kind {
     Floor
 };
 
+typedef uint uint32_t;
+
 using Group = std::vector<uint>;
 
 class EntityManager {
 public:
-    uint createEntity(Kind kind) {
-      auto entity = Entity();
-      entity.world = world; 
-      entities[entity.id] = entity;
-      if ( kinds.find(kind) != kinds.end() ) {
-        kinds[kind].push_back(entity.id);
-      } else {
-        kinds.insert({kind, Group()});
-        kinds[kind].push_back(entity.id);
-      }
-      return entity.id;
-    }
+    uint createEntity(Kind kind); 
     
     
     template<typename T>
@@ -49,21 +41,10 @@ public:
       return entities[id];
     }
     
-    uint setEntity(Kind kind, Entity entity) {
-        auto id = generator();
-        entity.id = id;
-        entities[id] = entity;
-        if ( kinds.find(kind) != kinds.end() ) {
-            kinds[kind].push_back(id);
-        } else {
-            kinds.insert({kind, Group()});
-            kinds[kind].push_back(id);
-        }
-        return id;
-    }
+    uint setEntity(Kind kind, Entity entity);
     
     void removeEntity(uint id) {
-      entities.erase(entities.find(id));
+        entities.erase(entities.find(id));
     } 
     
     ComponentManager& getCompManager(uint id) {
