@@ -19,7 +19,7 @@ void createPlayer(World * world, std::string name, Coord cord)
 void createFloorTile(World * world, Types::FloorType type, Coord cord)
 {
     auto id = world->emgr.createEntity(Kind::Floor);
-    std::cout << "FLOOR CREATED " << id << std::endl;
+    std::cout << "FLOOR CREATED " << id << "X: " << cord.y << "Y: " << cord.y << std::endl;
     using namespace Types;
     switch ( type ) {
         case MAGMA:
@@ -51,6 +51,7 @@ void createFloorTile(World * world, Types::FloorType type, Coord cord)
 void createObstacle(World * world, Types::ObstacleType type, Coord cord)
 {
     auto id = world->emgr.createEntity(Kind::Obstacle);
+    std::cout << "OBSTACLE CREATED " << id << "X: " << cord.y << "Y: " << cord.y << std::endl;
     using namespace Types;
     switch ( type ) {
         case WALL:

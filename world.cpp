@@ -40,19 +40,22 @@ bool World::loadMapFile(const std::string& path)
         auto data = split(line, ';');
         for ( uint x = 0; x < data.size(); ++x ) {
             int val = std::stoi(data[x]);
+            std::cout << val << " | ";
             switch(val) {
                 case 2:
                     createFloorTile(this, Types::MAGMA, {x,y});
                     break;
                 case 1:
-                    break;
                     createObstacle(this, Types::WALL, {x,y});
+                    break;
                 case 0:
                 default:
                     createFloorTile(this, Types::GRASS, {x,y});
                     break;
             }
+            
         }
+        std::cout << std::endl;
         y++;
     }    
     createPlayer(this, "M", {0,1});

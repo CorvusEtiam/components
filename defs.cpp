@@ -28,18 +28,28 @@ void DisplaySystem::draw(Entity& entity, char alter_code) {
 }
 
 void DisplaySystem::draw(Entity& entity) {  
-      auto display = entity.cmgr.getComponent<Display>();
       auto position = entity.cmgr.getComponent<Position>();
+      auto display = entity.cmgr.getComponent<Display>();
       sf::RectangleShape rect;
       sf::Text text;
       rect.setPosition(sf::Vector2f(position->x * 20.f, position->y * 20.f));
       rect.setSize({20.f, 20.f});
-      rect.setFillColor(display->background);
-      text.setFont(getWorld()->game->font);
-      text.setString(sf::String(display->code));
-      text.setColor(display->foreground);
       text.setPosition(position->x * 20.f + 3, position->y * 20.f - 3);
       text.setCharacterSize(18);
+      text.setFont(getWorld()->game->font);
+      text.setString(sf::String(display->code));
+      
+      
+      if ( entity.cmgr.hasComponent<Floor>() ) {
+        rect.setFillColor(display->background);
+        text.setColor(display->foreground);  
+      } else {
+        auto backtile = getWorld()->map[position->y][position->x].floor;
+        auto backdisp = getWorld()->emgr.getCompManager(backtile).getComponent<Display>();
+        rect.setFillColor(backdisp->background);
+        text.setColor(display->foreground);
+      }
+      
       getWorld()->game->window.draw(rect);
       getWorld()->game->window.draw(text);
 
@@ -65,7 +75,7 @@ void MovementSystem::update(Entity& entity, int dx, int dy)
         return;
     if ( position->y + dy < 0 || position->y + dy >= int(getWorld()->height) )  
         return;
-    if ( getWorld()->collisionSys.check(entity, position->x+dx, position->y+dy))
+    if ( !getWorld()->collisionSys.check(entity, position->x+dx, position->y+dy))
         return;
 
         getWorld()->map[position->y][position->x].haveActor = false;
