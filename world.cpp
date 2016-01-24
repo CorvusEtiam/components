@@ -49,7 +49,7 @@ bool World::loadMapFile(const std::string& path)
             continue; 
         } 
         auto item = split(line, ';');
-        for ( uint x = 0; x < width; ++x ) {
+        for ( uint x = 0; x < item.size(); ++x ) {
             vec[y][x] = std::stoi(item[x]); 
         }
         y++;
@@ -88,8 +88,8 @@ void World::loadMap(Vector2D& _map)
         
         std::cout << width << " ::: " << height << std::endl;
         
-        for ( uint y = 0; y < height; ++y ) {
-            for ( uint x = 0; x < width; ++x ) {
+        for ( uint y = 0; y < _map.size(); y++ ) {
+            for ( uint x = 0; x < _map[y].size(); x++ ) {
                 if ( _map[y][x] == 0 ) {
                     createFloorTile(this, Types::STONE, {y,x});
                 } else if ( _map[y][x] == 1 ) {
@@ -108,8 +108,10 @@ void World::loadMap(Vector2D& _map)
 
 void World::draw()
 {      
+    int i = 0;
     for ( uint y = 0; y < height; ++y ) {
         for ( uint x = 0; x < width; ++x ) {
+            i += 1;
             if ( map[y][x].haveActor ) {
                 displaySys.draw(emgr.getEntity(map[y][x].actor));
             } else if( ( !map[y][x].haveActor ) && map[y][x].objects.size() == 0 ) {
@@ -118,25 +120,33 @@ void World::draw()
                 displaySys.draw(emgr.getEntity(map[y][x].objects[0]));
             } else if ( !map[y][x].haveActor && map[y][x].objects.size() > 1 ) {
                 displaySys.draw(emgr.getEntity(map[y][x].floor), '*');
+            } else {
+                displaySys.draw(emgr.getEntity(map[y][x].floor), 'X');
             }
         }
     }
+    std::cout << "DRAWN: " << i << std::endl;
 }
 
 void World::update()
 {
     for ( uint y = 0; y < height; ++y ) {
+        std::cout << y;
         for ( uint x = 0; x < width; ++x ) {
+            
             auto entity = emgr.getEntity(map[y][x].floor);
             displaySys.update(entity);
             if ( map[y][x].haveActor ) {
                 auto entity = emgr.getEntity(map[y][x].actor);
                 displaySys.update(entity);
             }
+            std::cout << entity.id << "  " << map[y][x].objects.size() << std::endl;
             for ( uint handle = 0; handle < map[y][x].objects.size(); ++handle ) {
+                
                 auto entity = emgr.getEntity(map[y][x].objects[handle]);
                 displaySys.update(entity);
             }
+            std::cout << std::endl;
         }
     }
 }

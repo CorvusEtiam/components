@@ -59,7 +59,7 @@ void MovementSystem::update(Entity& entity, int dx, int dy)
     auto position = entity.cmgr.getComponent<Position>();
     std::cout << position->x << " + " << dx << " " << position->y << " + " << dy << std::endl;
     if ( ( position->x + dx < 0 || position->x + dx >= getWorld()->width ) ||
-         ( position->y + dy < 0 || position->y + dy >= getWorld()->height ) ) {
+         ( position->y + dy < 0 || position->y + dy > getWorld()->height ) ) {
             return;
         }
     auto floor = getWorld()->emgr.getCompManager(getWorld()->map[position->x+dx][position->y+dy].floor).getComponent<Floor>();

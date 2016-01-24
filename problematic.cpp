@@ -1,32 +1,50 @@
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
-#include <string>
+#include <vector>
+#include <sstream>
+#include <fstream>
+#include <iostream>
 
+using Vector2D = std::vector<std::vector<int>>;
 
+std::vector<std::string> split(std::string str, char sep) {
+    std::stringstream ss(str);
+    std::string item;
+    std::vector<std::string> vec;
+    while ( std::getline(ss, item, sep ) ) {
+        if ( !item.empty() ) vec.push_back(item);
+    }
+    return vec;  
+}
 
-#include <SFML/Graphics.hpp>
-
-int main()
+void loadMapFile(const std::string& path)
 {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::Font font;
-    font.loadFromFile("media/COURIER.TTF");
-    sf::Text text;
-    text.setString("TEST");
-    text.setFont(font);
+    Vector2D vec;
+    std::ifstream file(path);
+    if ( !file.good() ) return;
+    std::string line;
     
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
+    std::getline(file, line);
+    auto header = split(line, ';');
+    std::cout << header.size() << std::endl;
+    auto width = std::stoi(header[0]);
+    auto height = std::stoi(header[1]);
+    std::cout << width << " " << height << std::endl;
+    
+    vec.resize(height);
+    for ( auto& line : vec ) {
+        line.resize(width);
+    }
+    
+    int x = 0, y = 0;
+    while ( std::getline(file, line) ) {
+        auto item = split(line, ';');
+        for ( auto chr : item ) {
+            std::cout << chr << " ";
         }
-
-        window.clear();
-        window.draw(text);
-        window.display();
+        std::cout << std::endl;
     }
 }
-    
+
+int main() {
+    loadMapFile("media/simplemap.csv");
+    return 0;
+}
