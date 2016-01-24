@@ -36,19 +36,6 @@ bool World::loadMapFile(const std::string& path)
     for ( auto& m : map ) m.resize(width);
     uint y = 0;
     while ( std::getline(file, line) ) {
-<<<<<<< HEAD
-        std::cout << line << std::endl;
-        if ( line[0] == '#' || line[0] == '@' ) { 
-            /*
-             *   # are comments
-             *   @ are metadata -- metadata are useful for stuff like legend with all used symbols on map
-             */
-            continue; 
-        } 
-        auto item = split(line, ';');
-        for ( uint x = 0; x < item.size(); ++x ) {
-            vec[y][x] = std::stoi(item[x]); 
-=======
         if ( line[0] == '@' || line['#'] ) { continue; }
         auto data = split(line, ';');
         for ( uint x = 0; x < data.size(); ++x ) {
@@ -67,7 +54,6 @@ bool World::loadMapFile(const std::string& path)
                     break;
             }
             
->>>>>>> maploader
         }
         std::cout << std::endl;
         y++;
@@ -100,36 +86,6 @@ void World::displayMap() {
     }
 }
 
-<<<<<<< HEAD
-void World::loadMap(Vector2D& _map)
-{
-        map.resize(height);
-        for ( auto& line : map ) {
-            line.resize(width);
-        }
-        
-        std::cout << width << " ::: " << height << std::endl;
-        
-        for ( uint y = 0; y < _map.size(); y++ ) {
-            for ( uint x = 0; x < _map[y].size(); x++ ) {
-                if ( _map[y][x] == 0 ) {
-                    createFloorTile(this, Types::STONE, {y,x});
-                } else if ( _map[y][x] == 1 ) {
-                    createObstacle(this, Types::WALL, {y,x});
-                } else if ( _map[y][x] == 2 ) {
-                    createFloorTile(this, Types::MAGMA, {y,x});
-                }
-                
-           }
-        }
-        std::cout << "HERE" << std::endl;
-        createPlayer(this, "M", {3,3});
-        displayMap();
-        showEntities(this->emgr);
-}
-
-=======
->>>>>>> maploader
 void World::draw()
 {      
     int i = 0;

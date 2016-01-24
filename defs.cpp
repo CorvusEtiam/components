@@ -67,18 +67,6 @@ void DisplaySystem::draw(Entity& entity) {
 void MovementSystem::update(Entity& entity, int dx, int dy)
 {
     auto position = entity.cmgr.getComponent<Position>();
-<<<<<<< HEAD
-    std::cout << position->x << " + " << dx << " " << position->y << " + " << dy << std::endl;
-    if ( ( position->x + dx < 0 || position->x + dx >= getWorld()->width ) ||
-         ( position->y + dy < 0 || position->y + dy > getWorld()->height ) ) {
-            return;
-        }
-    auto floor = getWorld()->emgr.getCompManager(getWorld()->map[position->x+dx][position->y+dy].floor).getComponent<Floor>();
-    if ( floor->passable ) {
-        getWorld()->map[position->x][position->y].haveActor = false;
-        getWorld()->map[position->x+dx][position->y+dy].actor = getWorld()->map[position->x][position->y].actor;
-        getWorld()->map[position->x+dx][position->y+dy].haveActor = true;
-=======
     std::cout << position->x << " + " << dx << " " << 
         position->y << " + " << dy << std::endl;
 
@@ -93,7 +81,6 @@ void MovementSystem::update(Entity& entity, int dx, int dy)
         getWorld()->map[position->y][position->x].haveActor = false;
         getWorld()->map[position->y+dy][position->x+dx].actor = getWorld()->map[position->y][position->x].actor;
         getWorld()->map[position->y+dy][position->x+dx].haveActor = true;
->>>>>>> maploader
         position->x += dx;
         position->y += dy;
 }
