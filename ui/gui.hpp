@@ -14,7 +14,14 @@ public:
     void render(sf::RenderTarget& target) const;
 }; 
 #endif 
-
+/*
+ * class Gui {
+ *  public:
+ *    Layer * map;
+ *    Layer * bar;
+ *    Layer * disp;
+ * };
+ * */
 std::string linebreak(std::string entry, uint width); 
 
 struct GuiStyle {

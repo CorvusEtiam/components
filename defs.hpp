@@ -49,6 +49,39 @@ struct Description : public IComponent {
     
 };
 
+struct Item : public IComponent {
+    bool pickable;
+    bool dropable;
+    bool sellable;
+    uint price;
+    
+    Item() {}
+    Item(bool pick = true, bool drop = true, bool sell = false, uint prc = 0 ) {
+        pickable = pick; // can be picked
+        dropable = drop; // can be dropped
+        sellable = sell;
+        price    = prc;
+    }
+    ~Item() {}
+};
+
+struct Storage : public IComponent {
+    std::vector<uint> items;
+    uint maxitem;
+    Storage() {}
+    
+    Storage(uint max, std::vector<uint> it) {
+        maxitem = max;
+        items = it;
+    }
+    
+    Storage(uint max) {
+        maxitem = max;
+    }
+    
+    ~Storage() {}
+}; 
+
 class World;
 struct Entity;
 class DisplaySystem : public IDraw, public ISystem {
@@ -70,3 +103,15 @@ public:
     void update(Entity&) {}
     bool check(Entity& entity, uint x, uint y);
 };
+
+class InventorySystem : public ISystem, IDraw {
+public:
+    void draw(Entity& entity);
+    void update(Entity&) {}
+    
+    void take(Entity& entity, uint object);
+    void drop(Entity& entity, uint object); 
+private:
+    void _displayMsg(std::vector<uint> data, uint width, uint height, uint x, uint y);
+    
+}; 

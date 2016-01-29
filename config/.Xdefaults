@@ -1,0 +1,144 @@
+!-------------------------------------------------------------------------------
+! Xft settings
+!-------------------------------------------------------------------------------
+
+Xft.dpi:                    96
+Xft.antialias:              false
+Xft.rgba:                   rgb
+Xft.hinting:                true
+Xft.hintstyle:              hintslight
+
+!-------------------------------------------------------------------------------
+! URxvt settings
+! Colours lifted from Solarized (http://ethanschoonover.com/solarized)
+! More info at:
+! http://pod.tst.eu/http://cvs.schmorp.de/rxvt-unicode/doc/rxvt.1.pod
+!-------------------------------------------------------------------------------
+
+URxvt.depth:                32
+URxvt.geometry:             90x30
+URxvt.transparent:          false
+URxvt.fading:               0
+! URxvt.urgentOnBell:         true
+! URxvt.visualBell:           true
+URxvt.loginShell:           true
+URxvt.saveLines:            50
+URxvt.internalBorder:       3
+URxvt.lineSpace:            0
+
+! Fonts
+URxvt.allow_bold:           false
+/* URxvt.font:                 -*-terminus-medium-r-normal-*-12-120-72-72-c-60-iso8859-1 */
+URxvt*font: xft:Source code pro:pixelsize=12
+URxvt*boldFont: xft:Source code pro:pixelsize=12
+
+! Fix font space
+URxvt*letterSpace: -1
+
+! Scrollbar
+URxvt.scrollStyle:          rxvt
+URxvt.scrollBar:            false
+
+! Perl extensions
+URxvt.perl-ext-common:      default,matcher,clipboard,keyboard-select
+URxvt.keysym.M-u: perl:url-select:select-next
+URxvt.keysym.M-Escape: perl:keyboard-select:activate
+URxvt.keysym.M-c: perl:clipboard:copy
+URxvt.keysym.M-v: perl:clipboard:paste
+URxvt.clipboard.autocopy : true
+URxvt.matcher.button:       1
+URxvt.urlLauncher:          chromium-browser
+
+! Cursor
+URxvt.cursorBlink:          true
+URxvt.cursorColor:          #657b83
+URxvt.cursorUnderline:      false
+
+! Pointer
+URxvt.pointerBlank:         true
+
+!!Source http://github.com/altercation/solarized
+
+!*background: #073642
+!*foreground: #657b83
+!!!*fading: 40
+!*fadeColor: #002b36
+!*cursorColor: #93a1a1
+!*pointerColorBackground: #586e75
+!*pointerColorForeground: #93a1a1
+!
+!!! black dark/light
+!*color0: #073642
+!*color8: #002b36
+!
+!!! red dark/light
+!*color1: #dc322f
+!*color9: #cb4b16
+!
+!!! green dark/light
+!*color2: #859900
+!*color10: #586e75
+!
+!!! yellow dark/light
+!*color3: #b58900
+!*color11: #657b83
+!
+!!! blue dark/light
+!*color4: #268bd2
+!*color12: #839496
+!
+!!! magenta dark/light
+!*color5: #d33682
+!*color13: #6c71c4
+!
+!!! cyan dark/light
+!*color6: #2aa198
+!*color14: #93a1a1
+!
+!!! white dark/light
+!*color7: #eee8d5
+!*color15: #fdf6e3
+! *******************************
+! colorscheme molokai
+
+!! source: https://github.com/spazzpp2/dotfiles/blob/29819a5ac5e451bfa39bc324378aa508ef75cae8/Molokai.xrdb
+
+! Molokai theme
+URxvt*background: #101010
+URxvt*foreground: #d0d0d0
+URxvt*color0: #101010
+URxvt*color1: #960050
+URxvt*color2: #66aa11
+URxvt*color3: #c47f2c
+URxvt*color4: #30309b
+URxvt*color5: #7e40a5
+URxvt*color6: #3579a8
+URxvt*color7: #9999aa
+URxvt*color8: #303030
+URxvt*color9: #ff0090
+URxvt*color10: #80ff00
+URxvt*color11: #ffba68
+URxvt*color12: #5f5fee
+URxvt*color13: #bb88dd
+URxvt*color14: #4eb4fa
+URxvt*color15: #d0d0d0
+
+*xterm*background: #101010
+*xterm*foreground: #d0d0d0
+*xterm*cursorColor: #d0d0d0
+*xterm*color0: #101010
+*xterm*color1: #960050
+*xterm*color2: #66aa11
+*xterm*color3: #c47f2c
+*xterm*color4: #30309b
+*xterm*color5: #7e40a5
+*xterm*color6: #3579a8
+*xterm*color7: #9999aa
+*xterm*color8: #303030
+*xterm*color9: #ff0090
+*xterm*color10: #80ff00
+*xterm*color11: #ffba68
+*xterm*color12: #5f5fee
+*xterm*color13: #bb88dd
+*xterm*color14: #4eb4fa
+*xterm*color15: #d0d0d0

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+using Vector2d = std::vector< std::vector < uint > >;
 
 typedef uint uint32_t;
 
@@ -21,5 +22,7 @@ inline std::size_t getTypeId() noexcept {
   return typeId;
 }
 
+std::vector<std::string> split(std::string str, char sep); 
+    
 
 #endif /* UTIL */

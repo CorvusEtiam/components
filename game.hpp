@@ -5,15 +5,17 @@
 #include "system.hpp"
 #include "component.hpp"
 #include "world.hpp"
+#include "gamestates.hpp"
+
 class Game {
 public:
   bool running;
-  bool waiting;
-  
+  bool waiting; 
+  GameState state = GameState::MAP;
   World world;
   sf::RenderWindow window;
   sf::Font font;
-  
+// Gui::Gui gui;  
   
   
   Game() : running(true), waiting(true) {
@@ -37,3 +39,5 @@ private:
   bool top;
   bool down;
 };
+
+

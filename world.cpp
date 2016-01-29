@@ -6,22 +6,10 @@
 #include "defs.hpp"
 #include "entitycreator.hpp"
 
-using Vector2d = std::vector< std::vector < uint > >;
 
 Entity& World::getPlayer() {
     return emgr.getEntity(emgr.kinds[Kind::Player][0]);
 }
-
-std::vector<std::string> split(std::string str, char sep) {
-    std::stringstream ss(str);
-    std::string item;
-    std::vector<std::string> vec;
-    while ( std::getline(ss, item, sep ) ) {
-        if ( !item.empty() ) vec.push_back(item);
-    }
-    return vec;  
-}
-
 
 bool World::loadMapFile(const std::string& path)
 {
@@ -110,6 +98,16 @@ void World::draw()
 
 void World::update()
 {
+    if ( left ) {
+        movementSys.update(getPlayer(), -1, 0);
+    } else if ( right ) {
+        movementSys.update(getPlayer(), 1, 0);
+    } else if ( top ) {
+        movementSys.update(getPlayer(), 0, -1);
+    } else if ( down ) {
+        movementSys.update(getPlayer(), 0, 1);
+    }
+    
     for ( uint y = 0; y < height; ++y ) {
         std::cout << y;
         for ( uint x = 0; x < width; ++x ) {
@@ -131,4 +129,26 @@ void World::update()
     }
 }
 
+GameState World::input(sf::Event& ev) {
+      if ( ev.type == sf::Event::Closed || 
+           sf::Keyboard::isKeyPressed(sf::Keyboard::Escape ) ) {
+            game->running = false;
+            game->window.close();
+            return GameState::PAUSE;
+      } 
+      if ( ev.type == sf::Event::KeyPressed ) {
+        if ( sf::Keyboard::isKeyPressed(sf::Keyboard::W) ) {
+            top = true; left = right = down = false;
+            game->waiting = false;
+        } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::S) ) {
+            down = true; left = right = top = game->waiting =  false;
+        } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) ) {
+            left = true; top = right = down = game->waiting =  false;
+        } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::D) ) {
+            right = true; left = top = down = game->waiting =  false;
+        } 
+        return GameState::MAP;
+}
+    return GameState::MAP;
+}
 
