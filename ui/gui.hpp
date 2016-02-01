@@ -1,28 +1,19 @@
 #ifndef GUI_SYSTEM
 #define GUI_SYSTEM
 #include <type_traits>
+#include <vector>
+#include <cstdint>
+#include <string>
+#include <vector>
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include <vector>
 
 namespace Gui {
-#if 0    
-class Layer : public  sf::Drawable, public std::vector<sf::Drawable*> {
-public:
-    Layer();
-    ~Layer();
-    void render(sf::RenderTarget& target) const;
-}; 
-#endif 
-/*
- * class Gui {
- *  public:
- *    Layer * map;
- *    Layer * bar;
- *    Layer * disp;
- * };
- * */
-std::string linebreak(std::string entry, uint width); 
+
+typedef uint32_t uint;
+
+using W = std::string;
+W linebreak(W entry, uint width); 
 
 struct GuiStyle {
     sf::Color background;
@@ -31,134 +22,131 @@ struct GuiStyle {
     uint fontsize;
     uint border;
     GuiStyle(sf::Color _back, sf::Color _fore, sf::Font * _font, uint _fontsize, uint _border) :
-    background(_back), foreground(_fore), font(_font), fontsize(_fontsize), border(_border) 
+        background(_back), foreground(_fore), font(_font), fontsize(_fontsize), border(_border)
     {}
-    
+
     GuiStyle() {}
 };
 
-enum class WidgetType {
-    TextField,
-    Button
-};
-
-class IWidget  {
+class BaseBox {
 public:
-    virtual void draw(sf::RenderTarget& target) const = 0;
-    WidgetType type;
-    virtual ~IWidget() {}
-    
+    uint width;
+    uint height;
+    uint x;
+    uint y;
+    float tilesize;
+
+    BaseBox(uint _x, uint _y, uint _width, uint _height, float _tilesize) :
+        width(_width),
+        height(_height),
+        x(_x),
+        y(_y),
+        tilesize(_tilesize) 
+        {}
 };
 
-class TextFieldWidget : public IWidget {
-private:
-    sf::Text * text;
-    sf::RectangleShape * box;
-public:
-    void draw(sf::RenderTarget& target) const override  {
-        target.draw(*box);
-        target.draw(*text);
-    }
-    
-    TextFieldWidget(
-                    const std::string _text, 
-                    GuiStyle _style, 
-                    sf::Vector2f _size, 
-                    sf::Vector2i _position ) {
-        type = WidgetType::TextField;
-        text = new sf::Text();
-        box = new sf::RectangleShape();
-        text->setString(linebreak(_text, 11));
-        text->setFont(*_style.font);
-        text->setCharacterSize(_style.fontsize);
-        text->setColor(_style.foreground);
-        text->setPosition(_position.x + 3, _position.y - 3);
-        box->setPosition(_position.x, _position.y);
-        box->setSize(_size + sf::Vector2f(_style.border, _style.border));
-        box->setFillColor(_style.background);
-        box->setOutlineThickness(_style.border);
-        box->setOutlineColor(sf::Color(128,128,128));
-    }
-    ~TextFieldWidget() {
-        delete box;
-        delete text;
+struct Tile {
+    sf::RectangleShape* rect = nullptr;
+    sf::Text* text = nullptr;
+    bool changed = false;
+    bool visible = true;
+    Tile() {}
+    Tile(sf::RectangleShape * r, sf::Text * t) {
+        rect = r;
+        text = t;
     }
 };
 
-class Button : public IWidget {
-private:
-    sf::Text * text;
-    sf::RectangleShape * box;
-public:
-    virtual void draw(sf::RenderTarget& target) const {
-        target.draw(*box);
-        target.draw(*text);        
-    }
-    
-    Button( const std::string _text, 
-            GuiStyle  _style, 
-            sf::Vector2f _size, 
-            sf::Vector2i _position ) {
-        
-        type = WidgetType::Button;
-        text = new sf::Text();
-        box = new sf::RectangleShape();
-        text->setString(_text);
-        text->setFont(*_style.font);
-        text->setCharacterSize(_style.fontsize);
-        text->setColor(_style.foreground);
-        text->setPosition(_position.x + 3, _position.y - 3);
-        float width = (_style.fontsize * _text.size()) + _style.border * 2;
-        float half_height = ( _style.fontsize + _style.border );
-        text->move(half_height , _style.fontsize / 2);
-        box->setPosition(_position.x, _position.y);
-        box->setSize(sf::Vector2f(width, half_height * 2));
-        box->setFillColor(_style.background);
-        box->setOutlineThickness(_style.border);
-        box->setOutlineColor(sf::Color(128,128,128));
-        
-            }
-};
 
-template<typename T, typename... Args>
-T * create_widget(Args&&... args) {
-    static_assert(std::is_base_of<IWidget, T>(), "T have to be Subclass of IWidget!");
-    return new T(std::forward<Args>(args)...);
+
+using Map = std::vector<std::vector<Tile>>;
+
+inline sf::Vector2f mapCoordsToNormal(float x, float y, uint tilesize = 20) {
+    return sf::Vector2f(x + tilesize , y + tilesize );
 }
 
-class Box {
+class MapBox : public Gui::BaseBox {
+private:
+    std::vector<std::vector<Tile>> plane;
+//    sf::View view;
 public:
-    IWidget * widget;
-    std::vector< Box * > children;
+    MapBox(uint _x, uint _y, uint _width, uint _height, float _tilesize) :
+        BaseBox(_x, _y, _width, _height, _tilesize)
+    {
+        plane.resize(height);
+        for ( auto y = 0; y < height; ++y ) {
+            plane[y] = std::vector<Tile>();
+            plane[y].resize(this->width);
+            for ( auto x = 0; x < width; ++x ) {
+                std::cout << x << " " << y << std::endl;
+                auto rect = new sf::RectangleShape();
+                rect->setSize(sf::Vector2f(tilesize, tilesize));
+                rect->setPosition(this->x + x*tilesize, this->y + y*tilesize);
+                rect->setOutlineThickness(2.0);
+                rect->setOutlineColor(sf::Color::Blue);
+                auto text = new sf::Text;
+                text->setCharacterSize(tilesize - 4);
+                text->setPosition(this->x + x*tilesize + 3, this->y + y*tilesize - 3);
+                plane[y][x] = Tile(rect, text);
+            }
+        }
+    }
+    
+    void setTile(uint x, uint y, char str) {
+        plane[y][x].text->setString(str);
+    }
+#define DEBUG_PRINT(STR) std::cout << "[" << __LINE__  << "]" << STR << std::endl;    
+    void setTile(uint x, uint y, GuiStyle * style, char str) {
+        plane[y][x].rect->setFillColor(style->background);
+        plane[y][x].text->setString(str);
+        plane[y][x].text->setFont(*(style->font));
+        plane[y][x].text->setColor(sf::Color::White);
+        plane[y][x].visible = true;
+        plane[y][x].changed = true;
+    }
+    
+    void hidden(uint x, uint y) {
+        plane[y][x].visible = false;
+    }
+    
     void render(sf::RenderTarget& target) const;
-    
-    Box(IWidget * _widget) {
-        widget = _widget;
-    }
-    
-    Box() {
-        widget = nullptr;
-    }
-    
-    Box& addChild(Box * _box) {
-        children.push_back(_box);
-        return *this;
-    }
-    Box& emplaceBox(IWidget * _widget ) {
-        children.push_back(new Box(_widget));
-        return *this;
+};
+
+class StatusBox : public BaseBox {
+    sf::Text * textbox;
+public:
+    StatusBox(uint _x, uint _y, uint _width, uint _height, float _tilesize) :
+        BaseBox(_x, _y, _width, _height, _tilesize)
+    {
+        textbox = new sf::Text;
+        textbox->setPosition(_x, _y);
     }
 
-    ~Box() {
-        if ( widget != nullptr ) {
-            delete widget;
+    void showMsg(std::string msg, Gui::GuiStyle& msgStyle) {
+        if ( tilesize * msg.size() > width ) {
+            msg = linebreak(msg, int(width / tilesize));
         }
-        for ( auto& child : children ) {
-            delete child;
-        }
+        textbox->setString(msg);
+        textbox->setColor(msgStyle.foreground);
+        textbox->setFont(*(msgStyle.font));
+        textbox->setCharacterSize(msgStyle.fontsize);
     }
+    
+    void render(sf::RenderTarget& target) const;
+};
 
+// class SideBar : public BaseBox {};
+// class InventoryBox {};
+// class Messanger {}; // take care of popups, messanges
+// class MapBox : public Box {};
+// class StatusBarBox : public Box {};
+// class GuiToolbarBox : public Box {};
+class Gui {
+    MapBox * map;
+    StatusBox * box;
+    // SideBar * left;
+    // MenuBar * menu;
 };
 
 }    /* Gui */
-#endif 
+#endif

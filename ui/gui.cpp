@@ -1,45 +1,14 @@
 #include <iostream>
 #include <sstream>
+
 #include "gui.hpp"
+
 namespace Gui {
-#if 0
-Layer::Layer() : sf::Drawable(), std::vector<sf::Drawable*>() {
 
-}
-
-Layer::~Layer() {
-    for ( auto it = begin(); it != end(); ++it ) {
-        delete *it;
-    }
-}
-
-void Layer::render(sf::RenderTarget& target) const {
-    for ( std::vector<sf::Drawable*>::iterator it = begin(); it != end(); ++it ) {
-        target.draw(*it);
-    }
-}
-#endif
-
-void Box::render(sf::RenderTarget& target) const  { 
-    if ( widget->type == WidgetType::TextField ) {
-        auto _widget = static_cast<TextFieldWidget*>(widget);
-        _widget->draw(target);
-    } else if ( widget->type == WidgetType::Button ) {
-        auto _widget = static_cast<Button*>(widget);
-        _widget->draw(target);
-    }
-    
-    for ( auto& b : children ) {
-        b->render(target);
-    }
-}
-
-
-
-std::string linebreak(std::string entry, uint width) {  
+W linebreak(W entry, uint width) {
     std::istringstream iss(entry);
     std::ostringstream oss;
-    std::string word;
+    W word;
     
     if ( iss >> word ) {
         oss << word;
@@ -56,8 +25,28 @@ std::string linebreak(std::string entry, uint width) {
     }
     return oss.str();
 }
+
     
     
+void MapBox::render(sf::RenderTarget& target) const
+{
+    for ( auto x = 0; x < width; ++x ) {
+        for ( auto y = 0; y < height; ++y ) {
+            if ( plane[y][x].visible && plane[y][x].rect != nullptr && plane[y][x].text != nullptr ) {
+                target.draw(*plane[y][x].rect);
+                target.draw(*plane[y][x].text);
+            }  
+        }
+        
+    }
+}
+    
+void StatusBox::render(sf::RenderTarget& target) const
+{
+    target.draw(*(this->textbox));
+}
+
+
 }
 
 
