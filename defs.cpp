@@ -16,6 +16,7 @@ void DisplaySystem::draw(Entity& entity, char alter_code) {
       auto position = entity.cmgr.getComponent<Position>();
       sf::RectangleShape rect;
       sf::Text text;      
+// getWorld()->game->gui.setTile(position->x, position->y, )
       rect.setPosition({position->x * 20.f, position->y * 20.f});
       rect.setSize({20.f, 20.f});
       rect.setFillColor(display->background);
@@ -34,12 +35,14 @@ void DisplaySystem::draw(Entity& entity) {
       auto display = entity.cmgr.getComponent<Display>();
       sf::RectangleShape rect;
       sf::Text text;
+      
       rect.setPosition(sf::Vector2f(position->x * 20.f, position->y * 20.f));
       rect.setSize({20.f, 20.f});
       text.setPosition(position->x * 20.f + 3, position->y * 20.f - 3);
       text.setCharacterSize(18);
       text.setFont(getWorld()->game->font);
       text.setString(sf::String(display->code));
+      
       
       
       if ( entity.cmgr.hasComponent<Floor>() ) {

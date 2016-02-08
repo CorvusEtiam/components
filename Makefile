@@ -10,3 +10,5 @@ build:
 field:
 	$(CPP) $(FLAGS) $(SFML) -oproblem problematic.cpp
 
+clean:
+	rm -r *.o 

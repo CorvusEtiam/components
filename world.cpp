@@ -68,7 +68,8 @@ void showEntities(EntityManager& emgr) {
 void World::displayMap() {
     for ( uint y = 0; y < height; ++y ) {
         for ( uint x = 0; x < width; ++x ) {
-            std::cout << map[y][x].floor << " " << (map[y][x].haveActor ? map[y][x].actor : 0) << " P: " << (emgr.getCompManager(map[y][x].floor).getComponent<Floor>()->passable ? 1 : 0) << " | "; 
+            std::cout << map[y][x].floor << " " << (map[y][x].haveActor ? map[y][x].actor : 0) << " P: " 
+            << (emgr.getCompManager(map[y][x].floor).getComponent<Floor>()->passable ? 1 : 0) << " | "; 
         }
         std::cout << std::endl;
     }

@@ -1,14 +1,15 @@
 #include <iostream>
 #include <sstream>
-
+#include <locale>
 #include "gui.hpp"
 
 namespace Gui {
 
-W linebreak(W entry, uint width) {
+using std::string;
+string linebreak(string entry, uint width) {
     std::istringstream iss(entry);
     std::ostringstream oss;
-    W word;
+    string word;
     
     if ( iss >> word ) {
         oss << word;
@@ -24,26 +25,52 @@ W linebreak(W entry, uint width) {
         }
     }
     return oss.str();
+    
+}
+
+using std::wstring;
+wstring linebreak(wstring entry, uint width) {
+    std::wistringstream iss(entry);
+    iss.imbue(std::locale(""));
+    std::wostringstream oss;
+    wstring word;
+    
+    if ( iss >> word ) {
+        oss << word;
+        uint space_left = width - word.length();
+        while ( std::getline(iss, word, L' ') ) {
+            if ( space_left < word.length() + 1 ) {
+                oss << '\n' << word;
+                space_left = width - word.length();
+            } else {
+                oss << ' ' << word;
+                space_left -= word.length() + 1;
+            }
+        }
+    }
+    return oss.str();
+    
 }
 
     
     
+    
 void MapBox::render(sf::RenderTarget& target) const
 {
-    for ( auto x = 0; x < width; ++x ) {
-        for ( auto y = 0; y < height; ++y ) {
-            if ( plane[y][x].visible && plane[y][x].rect != nullptr && plane[y][x].text != nullptr ) {
-                target.draw(*plane[y][x].rect);
-                target.draw(*plane[y][x].text);
-            }  
-        }
-        
+     ///////
+    /// \brief Render whole map
+    ///////
+    for ( auto& tile : tilemap ) {
+        tile.draw(target);
     }
 }
     
+    
+    
 void StatusBox::render(sf::RenderTarget& target) const
 {
-    target.draw(*(this->textbox));
+    target.draw(*this->blackbox);
+    target.draw(*this->textbox);
 }
 
 

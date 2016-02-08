@@ -12,20 +12,31 @@ namespace Gui {
 
 typedef uint32_t uint;
 
-using W = std::string;
-W linebreak(W entry, uint width); 
+
+std::string linebreak(std::string entry, uint width); 
+std::wstring linebreak(std::wstring entry, uint width);
+
 
 struct GuiStyle {
-    sf::Color background;
-    sf::Color foreground;
     sf::Font * font;
+    uint tilesize;
     uint fontsize;
     uint border;
-    GuiStyle(sf::Color _back, sf::Color _fore, sf::Font * _font, uint _fontsize, uint _border) :
-        background(_back), foreground(_fore), font(_font), fontsize(_fontsize), border(_border)
-    {}
+    sf::Color bordercolor;
+    GuiStyle(sf::Font * _font, uint _fontsize,  uint _tilesize, uint _border, sf::Color _bordercolor ) :
+       font(_font), fontsize(_fontsize), border(_border), bordercolor(_bordercolor), tilesize(_tilesize)
+    {
+        ////////////////////////
+        /// \param _font pointer to Font 
+        /// \param _fontsize font size
+        /// \param _border thickness 
+        /// \param _bordercolor 
+        ////////////////////////
+    }
 
-    GuiStyle() {}
+    GuiStyle() {
+        font = nullptr;
+    }
 };
 
 class BaseBox {
@@ -34,79 +45,115 @@ public:
     uint height;
     uint x;
     uint y;
-    float tilesize;
-
-    BaseBox(uint _x, uint _y, uint _width, uint _height, float _tilesize) :
+    GuiStyle style;
+    BaseBox(uint _x, uint _y, uint _width, uint _height, GuiStyle _style) :
         width(_width),
         height(_height),
         x(_x),
-        y(_y),
-        tilesize(_tilesize) 
-        {}
+        y(_y)
+        {
+            style = _style;
+            
+        }
 };
 
 struct Tile {
-    sf::RectangleShape* rect = nullptr;
-    sf::Text* text = nullptr;
-    bool changed = false;
-    bool visible = true;
-    Tile() {}
-    Tile(sf::RectangleShape * r, sf::Text * t) {
-        rect = r;
-        text = t;
+private:
+    sf::RectangleShape * rect;
+    sf::Text * text;
+public:
+    
+    Tile() {
+        rect = new sf::RectangleShape();
+        text = new sf::Text();
+       
     }
+    
+    Tile(uint x, uint y, const GuiStyle& style) {
+        rect = new sf::RectangleShape();
+        rect->setSize(sf::Vector2f(style.tilesize,style.tilesize));
+        rect->setOutlineThickness(style.border);
+        rect->setOutlineColor(style.bordercolor);
+        rect->setPosition(x*style.tilesize,y*style.tilesize);
+        text = new sf::Text();
+        text->setPosition(x*style.tilesize,y*style.tilesize);
+        text->setCharacterSize(style.fontsize);
+        text->setFont(*style.font);
+    }
+    
+    void setTile(uint x, uint y, const GuiStyle& style) {
+        rect->setSize(sf::Vector2f(style.tilesize,style.tilesize));
+        rect->setOutlineThickness(style.border);
+        rect->setOutlineColor(style.bordercolor);
+        rect->setPosition(x*style.tilesize,y*style.tilesize);
+        
+        text->setPosition(x*style.tilesize,y*style.tilesize);
+        text->setCharacterSize(style.fontsize);
+        text->setFont(*style.font);
+        
+    }
+    
+    
+    void draw(sf::RenderTarget& target) const {
+        target.draw(*rect);
+        target.draw(*text);
+    }
+    
+    
+    void setBackground(sf::Color color) {
+        rect->setFillColor(color);
+    }
+    
+    void setForeground(sf::Color color) {
+        text->setColor(color);
+    }
+    
+    void setCharacter(const wchar_t wc) {
+        text->setString(wc);
+    }
+    
+    void setAll(sf::Color back, sf::Color fore, const wchar_t wc) {
+        this->setBackground(back);
+        this->setForeground(fore);
+        this->setCharacter(wc);
+    }
+    
 };
 
-
-
-using Map = std::vector<std::vector<Tile>>;
 
 inline sf::Vector2f mapCoordsToNormal(float x, float y, uint tilesize = 20) {
     return sf::Vector2f(x + tilesize , y + tilesize );
 }
 
+
+template<typename T>
+using Map2D = std::vector<std::vector<T>>;
+
 class MapBox : public Gui::BaseBox {
 private:
-    std::vector<std::vector<Tile>> plane;
-//    sf::View view;
+    std::vector<Tile> tilemap;
+    // sf::View view;
+    
 public:
-    MapBox(uint _x, uint _y, uint _width, uint _height, float _tilesize) :
-        BaseBox(_x, _y, _width, _height, _tilesize)
-    {
-        plane.resize(height);
-        for ( auto y = 0; y < height; ++y ) {
-            plane[y] = std::vector<Tile>();
-            plane[y].resize(this->width);
-            for ( auto x = 0; x < width; ++x ) {
-                std::cout << x << " " << y << std::endl;
-                auto rect = new sf::RectangleShape();
-                rect->setSize(sf::Vector2f(tilesize, tilesize));
-                rect->setPosition(this->x + x*tilesize, this->y + y*tilesize);
-                rect->setOutlineThickness(2.0);
-                rect->setOutlineColor(sf::Color::Blue);
-                auto text = new sf::Text;
-                text->setCharacterSize(tilesize - 4);
-                text->setPosition(this->x + x*tilesize + 3, this->y + y*tilesize - 3);
-                plane[y][x] = Tile(rect, text);
-            }
+    MapBox(uint _x, uint _y, uint _width, uint _height, GuiStyle& _style) :
+        BaseBox(_x, _y, _width, _height, _style)  
+        {
+            tilemap.resize(_width*_height);
+            for ( auto i = 0; i < height; i++ ) {
+                for ( auto j = 0; j < width; j++ ) {
+                    tilemap[i*height + j].setTile(i, j, style);
+                }      
+            }    
         }
+        
+    
+    
+    Tile& at(uint x, uint y) {
+        return tilemap[height*y + x];
     }
     
-    void setTile(uint x, uint y, char str) {
-        plane[y][x].text->setString(str);
-    }
-#define DEBUG_PRINT(STR) std::cout << "[" << __LINE__  << "]" << STR << std::endl;    
-    void setTile(uint x, uint y, GuiStyle * style, char str) {
-        plane[y][x].rect->setFillColor(style->background);
-        plane[y][x].text->setString(str);
-        plane[y][x].text->setFont(*(style->font));
-        plane[y][x].text->setColor(sf::Color::White);
-        plane[y][x].visible = true;
-        plane[y][x].changed = true;
-    }
-    
-    void hidden(uint x, uint y) {
-        plane[y][x].visible = false;
+    const Tile& at(uint x, uint y) const {
+        return tilemap[height*y + x];
     }
     
     void render(sf::RenderTarget& target) const;
@@ -114,26 +161,40 @@ public:
 
 class StatusBox : public BaseBox {
     sf::Text * textbox;
+    sf::RectangleShape * blackbox;
 public:
-    StatusBox(uint _x, uint _y, uint _width, uint _height, float _tilesize) :
-        BaseBox(_x, _y, _width, _height, _tilesize)
+    
+    StatusBox(uint _x, uint _y, float _width, float _height, const GuiStyle& _style) :
+        BaseBox(_x, _y, _width, _height, _style)
     {
+        blackbox = new sf::RectangleShape();
+        blackbox->setFillColor(sf::Color::Black);
+        blackbox->setSize({_width, _height});
+        blackbox->setPosition(sf::Vector2f(_x, _y));
+        
         textbox = new sf::Text;
         textbox->setPosition(_x, _y);
+        textbox->setFont(*style.font);
+        textbox->setCharacterSize(style.fontsize);
     }
 
-    void showMsg(std::string msg, Gui::GuiStyle& msgStyle) {
-        if ( tilesize * msg.size() > width ) {
-            msg = linebreak(msg, int(width / tilesize));
+    void showMsg(std::wstring msg, sf::Color foreground) {
+        if ( (msg.size() * style.fontsize ) > width ) {
+            msg = linebreak(msg, int(width / style.tilesize));
         }
         textbox->setString(msg);
-        textbox->setColor(msgStyle.foreground);
-        textbox->setFont(*(msgStyle.font));
-        textbox->setCharacterSize(msgStyle.fontsize);
+        textbox->setColor(foreground);
     }
+    
+    /*
+     void createButton();
+     void createTextBox();
+     void 
+     */
     
     void render(sf::RenderTarget& target) const;
 };
+
 
 // class SideBar : public BaseBox {};
 // class InventoryBox {};
@@ -141,11 +202,34 @@ public:
 // class MapBox : public Box {};
 // class StatusBarBox : public Box {};
 // class GuiToolbarBox : public Box {};
+
 class Gui {
+public:
+    sf::RenderWindow window;
     MapBox * map;
     StatusBox * box;
-    // SideBar * left;
-    // MenuBar * menu;
+
+    Gui(float window_width, float window_height, const std::string& title) {
+        window.create(sf::Vector2f{window_width, window_height}, title);
+    }
+    
+    void clear() {
+        window.clear(sf::Color::Black);
+    }
+    
+    void display() {
+        window.display();
+    }
+    
+    void close() {
+        window.close();
+    }
+    
+    void draw(sf::Drawable * _draw) {
+        window.draw(_draw);
+    }
+    
+    //    ResourceManager rmgr;
 };
 
 }    /* Gui */
