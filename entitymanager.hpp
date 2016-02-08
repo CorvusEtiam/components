@@ -41,6 +41,10 @@ public:
       return entities[id];
     }
     
+    Entity& getPlayer() {
+        return getEntity(kinds[Kind::Player][0]);
+    }
+    
     uint setEntity(Kind kind, Entity entity);
     
     void removeEntity(uint id) {

@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-
+#include "ui/gui.hpp"
 #include "entity.hpp"
 #include "system.hpp"
 #include "component.hpp"
@@ -15,9 +15,8 @@ public:
   World world;
   sf::RenderWindow window;
   sf::Font font;
-// Gui::Gui gui;  
-  
-  
+  Gui::Gui gui;
+  Gui::TileAtlas atlas;
   Game() : running(true), waiting(true) {
     
     window.create(sf::VideoMode(800.f, 600.f), "Test");
@@ -27,6 +26,7 @@ public:
     }
     
     world.init(this);
+    atlas.emplace("pile_of_objects", )
   }
   
   void mainloop();

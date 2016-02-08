@@ -1,21 +1,18 @@
 #ifndef GUI_SYSTEM
 #define GUI_SYSTEM
 #include <type_traits>
+#include <exception>
 #include <vector>
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <iostream>
 #include <SFML/Graphics.hpp>
-
 namespace Gui {
 
 typedef uint32_t uint;
-
-
 std::string linebreak(std::string entry, uint width); 
 std::wstring linebreak(std::wstring entry, uint width);
-
 
 struct GuiStyle {
     sf::Font * font;
@@ -23,9 +20,19 @@ struct GuiStyle {
     uint fontsize;
     uint border;
     sf::Color bordercolor;
-    GuiStyle(sf::Font * _font, uint _fontsize,  uint _tilesize, uint _border, sf::Color _bordercolor ) :
-       font(_font), fontsize(_fontsize), border(_border), bordercolor(_bordercolor), tilesize(_tilesize)
-    {
+    GuiStyle(
+            sf::Font * _font, 
+            uint _fontsize,  
+            uint _tilesize, 
+            uint _border, 
+            sf::Color _bordercolor ) :
+                
+        font(_font), 
+        tilesize(_tilesize), 
+        fontsize(_fontsize), 
+        border(_border),  
+        bordercolor(_bordercolor) {
+        
         ////////////////////////
         /// \param _font pointer to Font 
         /// \param _fontsize font size
@@ -52,8 +59,7 @@ public:
         x(_x),
         y(_y)
         {
-            style = _style;
-            
+            style = _style;            
         }
 };
 
@@ -65,38 +71,7 @@ public:
     
     Tile() {
         rect = new sf::RectangleShape();
-        text = new sf::Text();
-       
-    }
-    
-    Tile(uint x, uint y, const GuiStyle& style) {
-        rect = new sf::RectangleShape();
-        rect->setSize(sf::Vector2f(style.tilesize,style.tilesize));
-        rect->setOutlineThickness(style.border);
-        rect->setOutlineColor(style.bordercolor);
-        rect->setPosition(x*style.tilesize,y*style.tilesize);
-        text = new sf::Text();
-        text->setPosition(x*style.tilesize,y*style.tilesize);
-        text->setCharacterSize(style.fontsize);
-        text->setFont(*style.font);
-    }
-    
-    void setTile(uint x, uint y, const GuiStyle& style) {
-        rect->setSize(sf::Vector2f(style.tilesize,style.tilesize));
-        rect->setOutlineThickness(style.border);
-        rect->setOutlineColor(style.bordercolor);
-        rect->setPosition(x*style.tilesize,y*style.tilesize);
-        
-        text->setPosition(x*style.tilesize,y*style.tilesize);
-        text->setCharacterSize(style.fontsize);
-        text->setFont(*style.font);
-        
-    }
-    
-    
-    void draw(sf::RenderTarget& target) const {
-        target.draw(*rect);
-        target.draw(*text);
+        text = new sf::Text();   
     }
     
     
@@ -107,24 +82,48 @@ public:
     void setForeground(sf::Color color) {
         text->setColor(color);
     }
+   
+   
+    void setColor(sf::Color back, sf::Color fore) {
+        this->setBackground(back);
+        this->setForeground(fore);
+    }
+    
     
     void setCharacter(const wchar_t wc) {
         text->setString(wc);
     }
-    
-    void setAll(sf::Color back, sf::Color fore, const wchar_t wc) {
-        this->setBackground(back);
-        this->setForeground(fore);
-        this->setCharacter(wc);
+        
+    void draw(sf::RenderTarget& target) const {
+        target.draw(*rect);
+        target.draw(*text);
     }
     
+    void setSize(float width, float height) {
+        rect->setSize(sf::Vector2f{width, height});
+    }
+    
+    void setPosition(uint x, uint y) {
+        rect->setPosition(x,y);
+        text->setPosition(x+3, y-3);
+    }
 };
 
 
-inline sf::Vector2f mapCoordsToNormal(float x, float y, uint tilesize = 20) {
-    return sf::Vector2f(x + tilesize , y + tilesize );
-}
-
+struct Atlas {
+    std::map<std::string, Tile> atlas;
+    
+    void emplace(const std::string& key, wchar_t chr, sf::Color back, sf::Color fore) {
+        atlas[key] = Tile{};
+        atlas[key].setBackground(back);
+        atlas[key].setForeground(fore);
+        atlas[key].setCharacter(chr);
+    }
+    
+    Tile& get(const std::string& key) {
+        return atlas[key];
+    }
+};
 
 template<typename T>
 using Map2D = std::vector<std::vector<T>>;
@@ -132,6 +131,7 @@ using Map2D = std::vector<std::vector<T>>;
 class MapBox : public Gui::BaseBox {
 private:
     std::vector<Tile> tilemap;
+    Gui::Atlas atlas;
     // sf::View view;
     
 public:
@@ -139,20 +139,19 @@ public:
         BaseBox(_x, _y, _width, _height, _style)  
         {
             tilemap.resize(_width*_height);
-            for ( auto i = 0; i < height; i++ ) {
-                for ( auto j = 0; j < width; j++ ) {
-                    tilemap[i*height + j].setTile(i, j, style);
-                }      
-            }    
+            atlas.emplace("wall", L'#', sf::Color::Black, sf::Color::White);
+            atlas.emplace("floor", L'.',sf::Color::Black, sf::Color::White);
+            atlas.emplace("grass", L'.',sf::Color::Green, sf::Color::Black); 
         }
-        
     
     
-    Tile& at(uint x, uint y) {
-        return tilemap[height*y + x];
+    
+    void setTile(uint x, uint y, std::string s) {
+        tilemap[height*y + x] = atlas.get(s);
+        tilemap[height*y + x].setPosition(this->x + style.tilesize*x, this->y + style.tilesize * y);
     }
     
-    const Tile& at(uint x, uint y) const {
+    Tile& getTile(uint x, uint y) {
         return tilemap[height*y + x];
     }
     
@@ -199,36 +198,54 @@ public:
 // class SideBar : public BaseBox {};
 // class InventoryBox {};
 // class Messanger {}; // take care of popups, messanges
-// class MapBox : public Box {};
-// class StatusBarBox : public Box {};
-// class GuiToolbarBox : public Box {};
 
 class Gui {
+private:
+    sf::Font font;
+    sf::View view;
 public:
-    sf::RenderWindow window;
     MapBox * map;
     StatusBox * box;
-
-    Gui(float window_width, float window_height, const std::string& title) {
-        window.create(sf::Vector2f{window_width, window_height}, title);
+    sf::RenderWindow window;
+    
+    Gui(uint window_width, uint window_height, std::string title) {
+        window.create(sf::VideoMode{window_width, window_height}, title);
+        if ( ! font.loadFromFile("../media/COURIER.TTF") ) {
+            throw std::logic_error("Couldnt load font file -- COURIER from ../media");
+        }
+        GuiStyle style{&font,20,18,2,sf::Color(128,128,128)};
+        map = new MapBox(1,1, window_width - 200, window_height - 200, style);
+        box = new StatusBox(0,200, window_width, 200, style);
+        view.setSize(sf::Vector2f(window.getSize().x, window.getSize().y-200));
+        view.setCenter(sf::Vector2f(0.f,0.f));
+        view.setViewport(sf::FloatRect(0,0,0.75,0.75));
+    }
+    
+    void moveCamera(float x, float y) {
+        view.move(x,y);
     }
     
     void clear() {
-        window.clear(sf::Color::Black);
-    }
-    
-    void display() {
-        window.display();
     }
     
     void close() {
         window.close();
     }
     
-    void draw(sf::Drawable * _draw) {
-        window.draw(_draw);
+    void display() {
+        window.setView(view);
+        map->render(window);
+        window.setView(window.getDefaultView());
+        box->render(window);
+        window.display();
+        window.clear(sf::Color::Black);
     }
+   
     
+    ~Gui() {
+        delete map;
+        delete box;
+    }
     //    ResourceManager rmgr;
 };
 

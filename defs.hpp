@@ -88,6 +88,9 @@ class DisplaySystem : public IDraw, public ISystem {
 public:
     void draw(Entity& entity, char alter_code);
     void draw(Entity& entity);
+    void draw(uint x, uint y, const char * str) {
+        // getWorld()->gui.map.drawFromAtlas(str, x, y);
+    }
     void update(Entity&);
 };
 

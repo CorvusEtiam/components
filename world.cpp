@@ -1,15 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <fstream>
+#include "globals.hpp"
 #include "game.hpp"
 #include "world.hpp"
 #include "defs.hpp"
 #include "entitycreator.hpp"
-
-
-Entity& World::getPlayer() {
-    return emgr.getEntity(emgr.kinds[Kind::Player][0]);
-}
 
 bool World::loadMapFile(const std::string& path)
 {
@@ -50,8 +46,8 @@ bool World::loadMapFile(const std::string& path)
     return true;
 }
 
-
-
+#define DEBUG 
+#ifdef DEBUG 
 
 void showEntities(EntityManager& emgr) {
     for ( auto ent : emgr.entities ) {
@@ -74,60 +70,53 @@ void World::displayMap() {
         std::cout << std::endl;
     }
 }
+#endif /* DEBUG */
 
 void World::draw()
 {      
-    int i = 0;
     for ( uint y = 0; y < height; ++y ) {
         for ( uint x = 0; x < width; ++x ) {
-            i += 1;
-            if ( map[y][x].haveActor ) {
-                displaySys.draw(emgr.getEntity(map[y][x].actor));
-            } else if( ( !map[y][x].haveActor ) && map[y][x].objects.size() == 0 ) {
-                displaySys.draw(emgr.getEntity(map[y][x].floor));
-            } else if ( !map[y][x].haveActor && map[y][x].objects.size() == 1 ) {
-                displaySys.draw(emgr.getEntity(map[y][x].objects[0]));
-            } else if ( !map[y][x].haveActor && map[y][x].objects.size() > 1 ) {
-                displaySys.draw(emgr.getEntity(map[y][x].floor), '*');
+            auto& tile = this->at(x,y);
+            if ( !tile.flags[TileFlags::Visible]) {
+                continue;
+            }
+            if ( tile.flags[TileFlags::HaveActor]) {
+                displaySys.draw(emgr.getEntity(tile.actor));
+            } else if ( tile.flags[TileFlags::HaveObject] ) {
+                if ( tile.objects.size() > 1 ) {
+                   displaySys.draw("pile_of_items");
+                } else {
+                   displaySys.draw(tile.objects[0]);
+                } 
             } else {
-                displaySys.draw(emgr.getEntity(map[y][x].floor), 'X');
+                displaySys.draw(tile.floor_tile);
             }
         }
     }
-    std::cout << "DRAWN: " << i << std::endl;
 }
 
 void World::update()
 {
     if ( left ) {
-        movementSys.update(getPlayer(), -1, 0);
+        movementSys.update(emgr.getPlayer(), -1, 0);
     } else if ( right ) {
-        movementSys.update(getPlayer(), 1, 0);
+        movementSys.update(emgr.getPlayer(), 1, 0);
     } else if ( top ) {
-        movementSys.update(getPlayer(), 0, -1);
+        movementSys.update(emgr.getPlayer(), 0, -1);
     } else if ( down ) {
-        movementSys.update(getPlayer(), 0, 1);
+        movementSys.update(emgr.getPlayer(), 0, 1);
     }
     
-    for ( uint y = 0; y < height; ++y ) {
-        std::cout << y;
-        for ( uint x = 0; x < width; ++x ) {
-            
-            auto entity = emgr.getEntity(map[y][x].floor);
-            displaySys.update(entity);
-            if ( map[y][x].haveActor ) {
-                auto entity = emgr.getEntity(map[y][x].actor);
-                displaySys.update(entity);
-            }
-            std::cout << entity.id << "  " << map[y][x].objects.size() << std::endl;
-            for ( uint handle = 0; handle < map[y][x].objects.size(); ++handle ) {
-                
-                auto entity = emgr.getEntity(map[y][x].objects[handle]);
-                displaySys.update(entity);
-            }
-            std::cout << std::endl;
-        }
+    for ( auto tile : map  ) {
+       displaySys.update(emgr.getEntity(tile.floor_tile));
+       if ( tile.flags[TileFlags::HaveActor]) {
+           displaySys.update(emgr.getEntity(tile.actor));
+       }
+       for ( auto id : tile->objects ) {
+           displaySys.update(emgr.getEntity(id));
+       }
     }
+           
 }
 
 GameState World::input(sf::Event& ev) {

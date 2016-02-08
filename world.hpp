@@ -6,54 +6,22 @@
 #include "gamestates.hpp"
 
 
-struct EntityList {
-    uint floor;
-    uint actor;
+struct Tile {
+    const char * floor_tile;
+    uint actor; 
     std::vector<uint> objects;
-    EntityList() {
-        haveActor = haveFloor = haveObjects = false;
-        floor = actor = 0;
+    std::bitset<32> flags; 
+    bool isPassable() {
+        return true;
     }
-    
-    bool haveFloor;
-    bool haveActor;
-    bool haveObjects;
 };
 
-/* 
- *
-
-struct FloorTile {
-    Types::FloorTypes type;
-    sf::Color background;
-    sf::Color foreground;
-    char code;
-    uint x;
-    uint y;
-    bool passable;
-    bool walkable;
-    bool lightable;
-    bool obstacle;
-    std::bitset<8> effects;
-     
-};
-struct EntityList {
-    FloorTile floor; 
-    int actor; // -1 mean does not exist; 
-    std::vector<int> objects; 
-    EntityList() {
-        haveActor = haveFloor = haveObjects = false;
-        floor = actor = 0;
-    }
-    
-    bool haveActor;
-    bool haveObjects;
-};
-*/
 
 
-using TileMap    = std::vector<std::vector< EntityList > >;
-using Vector2D =  std::vector<std::vector<uint>>;    
+
+
+template<typename T>
+using Plane2D =  std::vector<std::vector<T>>;    
 
 class Game;
 class World {
@@ -63,13 +31,23 @@ class World {
         bool top;
         bool down;
     public:
-    TileMap map;
+    std::vector<Tile> map;
     EntityManager emgr;
     DisplaySystem displaySys;
     MovementSystem movementSys;
     CollisionSystem collisionSys;
     Game * game;
 
+    Tile& at(uint x, uint y) {
+        return map[y*width + x];
+    }
+    
+    const Tile& at(uint x, uint y) {
+        return map[y*width + x];
+    }
+    
+
+    
     World() {}
 
     void init(Game * _game) {
