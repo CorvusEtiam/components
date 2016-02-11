@@ -12,8 +12,8 @@ void createPlayer(World * world, std::string name, Coord cord)
     world->emgr.getCompManager(id).createComponent<Display>(sf::Color::Black, sf::Color::Blue, '@')
                .createComponent<Description>(name)
                .createComponent<Position>(cord.x, cord.y);
-    world->map[cord.y][cord.x].actor = id;
-    world->map[cord.y][cord.x].haveActor = true;
+    world->at(cord.x, cord.y).actor = id;
+    world->at(cord.x, cord.y).occupied = true;
 }
 
 void createFloorTile(World * world, Types::FloorType type, Coord cord)
@@ -44,8 +44,7 @@ void createFloorTile(World * world, Types::FloorType type, Coord cord)
             break;
             
     }
-    world->map[cord.y][cord.x].floor = id;
-    world->map[cord.y][cord.x].haveFloor = true;
+    world->at(cord.x, cord.y).floor_tile = id;
 }
 
 void createObstacle(World * world, Types::ObstacleType type, Coord cord)
@@ -65,8 +64,8 @@ void createObstacle(World * world, Types::ObstacleType type, Coord cord)
                                           .createComponent<Position>(cord.x, cord.y);
             break;
     }
-    world->map[cord.y][cord.x].floor = id;
-    world->map[cord.y][cord.x].haveFloor = true;
+    world->at(cord.x, cord.y).floor_tile = id;
+    world->at(cord.x, cord.y).passable = false; 
 }
 
 

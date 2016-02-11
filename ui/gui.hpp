@@ -8,14 +8,23 @@
 #include <vector>
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include "resourcemanager.hpp"
+#include "tilemap.hpp"
 namespace Gui {
 
+
+    
 typedef uint32_t uint;
 std::string linebreak(std::string entry, uint width); 
 std::wstring linebreak(std::wstring entry, uint width);
 
+
+
 struct GuiStyle {
     sf::Font * font;
+    /////////////
+    /// \todo Rewrite this class to use unique_ptr
+    /////////////
     uint tilesize;
     uint fontsize;
     uint border;
@@ -63,101 +72,6 @@ public:
         }
 };
 
-struct Tile {
-private:
-    sf::RectangleShape * rect;
-    sf::Text * text;
-public:
-    
-    Tile() {
-        rect = new sf::RectangleShape();
-        text = new sf::Text();   
-    }
-    
-    
-    void setBackground(sf::Color color) {
-        rect->setFillColor(color);
-    }
-    
-    void setForeground(sf::Color color) {
-        text->setColor(color);
-    }
-   
-   
-    void setColor(sf::Color back, sf::Color fore) {
-        this->setBackground(back);
-        this->setForeground(fore);
-    }
-    
-    
-    void setCharacter(const wchar_t wc) {
-        text->setString(wc);
-    }
-        
-    void draw(sf::RenderTarget& target) const {
-        target.draw(*rect);
-        target.draw(*text);
-    }
-    
-    void setSize(float width, float height) {
-        rect->setSize(sf::Vector2f{width, height});
-    }
-    
-    void setPosition(uint x, uint y) {
-        rect->setPosition(x,y);
-        text->setPosition(x+3, y-3);
-    }
-};
-
-
-struct Atlas {
-    std::map<std::string, Tile> atlas;
-    
-    void emplace(const std::string& key, wchar_t chr, sf::Color back, sf::Color fore) {
-        atlas[key] = Tile{};
-        atlas[key].setBackground(back);
-        atlas[key].setForeground(fore);
-        atlas[key].setCharacter(chr);
-    }
-    
-    Tile& get(const std::string& key) {
-        return atlas[key];
-    }
-};
-
-template<typename T>
-using Map2D = std::vector<std::vector<T>>;
-
-class MapBox : public Gui::BaseBox {
-private:
-    std::vector<Tile> tilemap;
-    Gui::Atlas atlas;
-    // sf::View view;
-    
-public:
-    MapBox(uint _x, uint _y, uint _width, uint _height, GuiStyle& _style) :
-        BaseBox(_x, _y, _width, _height, _style)  
-        {
-            tilemap.resize(_width*_height);
-            atlas.emplace("wall", L'#', sf::Color::Black, sf::Color::White);
-            atlas.emplace("floor", L'.',sf::Color::Black, sf::Color::White);
-            atlas.emplace("grass", L'.',sf::Color::Green, sf::Color::Black); 
-        }
-    
-    
-    
-    void setTile(uint x, uint y, std::string s) {
-        tilemap[height*y + x] = atlas.get(s);
-        tilemap[height*y + x].setPosition(this->x + style.tilesize*x, this->y + style.tilesize * y);
-    }
-    
-    Tile& getTile(uint x, uint y) {
-        return tilemap[height*y + x];
-    }
-    
-    void render(sf::RenderTarget& target) const;
-};
-
 class StatusBox : public BaseBox {
     sf::Text * textbox;
     sf::RectangleShape * blackbox;
@@ -195,27 +109,31 @@ public:
 };
 
 
-// class SideBar : public BaseBox {};
-// class InventoryBox {};
-// class Messanger {}; // take care of popups, messanges
-
 class Gui {
 private:
-    sf::Font font;
     sf::View view;
 public:
-    MapBox * map;
+    TileMap * map;
+    std::vector<std::string> plane;
     StatusBox * box;
     sf::RenderWindow window;
+    FontManager fontmgr;
+    SpriteManager spritemgr;
+    // map.drawTile(this, x,y,"wall")
+    Gui() {
+        
+    }
     
-    Gui(uint window_width, uint window_height, std::string title) {
+    
+    
+    void init(uint window_width, uint window_height, std::string title) {
         window.create(sf::VideoMode{window_width, window_height}, title);
-        if ( ! font.loadFromFile("../media/COURIER.TTF") ) {
-            throw std::logic_error("Couldnt load font file -- COURIER from ../media");
-        }
-        GuiStyle style{&font,20,18,2,sf::Color(128,128,128)};
-        map = new MapBox(1,1, window_width - 200, window_height - 200, style);
-        box = new StatusBox(0,200, window_width, 200, style);
+        fontmgr.load("courier", "../media/COURIER.TTF");
+        GuiStyle style{fontmgr.get("courier"),20,18,2,sf::Color(128,128,128)};
+        map = new TileMap();
+        map->load("../media/sprite.png", "../media/sprite.txt");
+        map->setPosition(20,20);
+    //    box = new StatusBox(0,200, window_width, 200, style);
         view.setSize(sf::Vector2f(window.getSize().x, window.getSize().y-200));
         view.setCenter(sf::Vector2f(0.f,0.f));
         view.setViewport(sf::FloatRect(0,0,0.75,0.75));
@@ -234,9 +152,9 @@ public:
     
     void display() {
         window.setView(view);
-        map->render(window);
+        window.draw(*map);
         window.setView(window.getDefaultView());
-        box->render(window);
+     //   box->render(window);
         window.display();
         window.clear(sf::Color::Black);
     }
@@ -246,8 +164,17 @@ public:
         delete map;
         delete box;
     }
-    //    ResourceManager rmgr;
+    
 };
+
+
+
+
+
+// class SideBar : public BaseBox {};
+// class InventoryBox {};
+// class Messanger {}; // take care of popups, messanges
+
 
 }    /* Gui */
 #endif

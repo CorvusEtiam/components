@@ -7,21 +7,15 @@
 
 
 struct Tile {
-    const char * floor_tile;
+    std::string floor_tile;
     uint actor; 
     std::vector<uint> objects;
-    std::bitset<32> flags; 
-    bool isPassable() {
-        return true;
-    }
+    bool passable; 
+    bool visible;
+    bool occupied; // by another actor
+    bool taken;    // by some object
 };
 
-
-
-
-
-template<typename T>
-using Plane2D =  std::vector<std::vector<T>>;    
 
 class Game;
 class World {
@@ -59,10 +53,8 @@ class World {
             std::logic_error("Cannot load simplemap.csv");
         }
     }
-    Entity& getPlayer();
     void displayMap();
     bool loadMapFile(const std::string& path); 
-    void loadMap(Vector2D& _map );
     GameState input(sf::Event& ev);
     void draw();
     void update();

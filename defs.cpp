@@ -9,7 +9,16 @@
 #include "world.hpp"
 #include "entitymanager.hpp"
 
+//////
+///
+/// \todo (!) Implement DisplaySystem
+/// \brief  Biggest change -- it will built vector of tiles
+/// 
+/////
+
 void DisplaySystem::update(Entity&) { return; }
+
+/* 
 
 void DisplaySystem::draw(Entity& entity, char alter_code) {  
       auto display = entity.cmgr.getComponent<Display>();
@@ -60,13 +69,6 @@ void DisplaySystem::draw(Entity& entity) {
 
 }
 
-/*
- 
-#####
-#####
-###0#
-#####
- 
 */
 
 void MovementSystem::update(Entity& entity, int dx, int dy)
@@ -83,9 +85,9 @@ void MovementSystem::update(Entity& entity, int dx, int dy)
     if ( !getWorld()->collisionSys.check(entity, position->x+dx, position->y+dy))
         return;
 
-        getWorld()->map[position->y][position->x].haveActor = false;
-        getWorld()->map[position->y+dy][position->x+dx].actor = getWorld()->map[position->y][position->x].actor;
-        getWorld()->map[position->y+dy][position->x+dx].haveActor = true;
+        getWorld()->at(position->x, position->y).occupied = false;
+        getWorld()->at(position->x+dx, position->y+dy) = getWorld()->at(position->x, position->y).actor;
+        getWorld()->at(position->x, position->y).occupied = true;
         position->x += dx;
         position->y += dy;
 }
@@ -95,9 +97,9 @@ void MovementSystem::update(Entity& entity, int dx, int dy)
 bool CollisionSystem::check(Entity& , uint x, uint y)
 {
     std::cout << "MOVED -> " << x << " " << y << std::endl;
-    EntityList list = getWorld()->map[y][x];
-    if ( list.haveFloor && !list.haveActor ) {
-        return getWorld()->emgr.getComponentFromEntity<Floor>(list.floor)->passable;
+    auto tile = getWorld()->at(x,y);
+    if ( !tile.occupied ) {
+        return tile.passable;
     } else {
         return false;
     }

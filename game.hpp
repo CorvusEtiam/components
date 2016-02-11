@@ -14,19 +14,14 @@ public:
   GameState state = GameState::MAP;
   World world;
   sf::RenderWindow window;
-  sf::Font font;
   Gui::Gui gui;
-  Gui::TileAtlas atlas;
   Game() : running(true), waiting(true) {
-    
-    window.create(sf::VideoMode(800.f, 600.f), "Test");
-    if ( !font.loadFromFile("media/COURIER.TTF")) {
-      auto error = "RESOURCE CANNOT BE LOADED :: FONT -- COURIER.TTF";
-      throw std::logic_error(error);
-    }
-    
-    world.init(this);
-    atlas.emplace("pile_of_objects", )
+      world.init(this);
+      gui.init(800, 600, "Sample window");      
+  }
+  
+  void exit() {
+      running = false;
   }
   
   void mainloop();

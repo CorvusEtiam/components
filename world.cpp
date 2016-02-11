@@ -46,6 +46,8 @@ bool World::loadMapFile(const std::string& path)
     return true;
 }
 
+
+
 #define DEBUG 
 #ifdef DEBUG 
 
@@ -77,14 +79,14 @@ void World::draw()
     for ( uint y = 0; y < height; ++y ) {
         for ( uint x = 0; x < width; ++x ) {
             auto& tile = this->at(x,y);
-            if ( !tile.flags[TileFlags::Visible]) {
+            if ( !tile.visible) {
                 continue;
             }
-            if ( tile.flags[TileFlags::HaveActor]) {
+            if ( tile.occupied) {
                 displaySys.draw(emgr.getEntity(tile.actor));
-            } else if ( tile.flags[TileFlags::HaveObject] ) {
+            } else if ( tile.taken ) {
                 if ( tile.objects.size() > 1 ) {
-                   displaySys.draw("pile_of_items");
+                   displaySys.draw("wall");
                 } else {
                    displaySys.draw(tile.objects[0]);
                 } 
@@ -109,7 +111,7 @@ void World::update()
     
     for ( auto tile : map  ) {
        displaySys.update(emgr.getEntity(tile.floor_tile));
-       if ( tile.flags[TileFlags::HaveActor]) {
+       if ( tile.occupied) {
            displaySys.update(emgr.getEntity(tile.actor));
        }
        for ( auto id : tile->objects ) {
@@ -122,20 +124,23 @@ void World::update()
 GameState World::input(sf::Event& ev) {
       if ( ev.type == sf::Event::Closed || 
            sf::Keyboard::isKeyPressed(sf::Keyboard::Escape ) ) {
-            game->running = false;
-            game->window.close();
+            game->exit();
             return GameState::PAUSE;
       } 
       if ( ev.type == sf::Event::KeyPressed ) {
         if ( sf::Keyboard::isKeyPressed(sf::Keyboard::W) ) {
             top = true; left = right = down = false;
+            game->gui.moveCamera(0, 20);
             game->waiting = false;
         } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::S) ) {
             down = true; left = right = top = game->waiting =  false;
+            game->gui.moveCamera(0, -20);
         } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) ) {
             left = true; top = right = down = game->waiting =  false;
+            game->gui.moveCamera(-20, 0);
         } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::D) ) {
             right = true; left = top = down = game->waiting =  false;
+            game->gui.moveCamera(20, 0);
         } 
         return GameState::MAP;
 }

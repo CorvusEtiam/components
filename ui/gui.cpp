@@ -53,20 +53,6 @@ wstring linebreak(wstring entry, uint width) {
 }
 
     
-    
-    
-void MapBox::render(sf::RenderTarget& target) const
-{
-     ///////
-    /// \brief Render whole map
-    ///////
-    for ( auto& tile : tilemap ) {
-        tile.draw(target);
-    }
-}
-    
-    
-    
 void StatusBox::render(sf::RenderTarget& target) const
 {
     target.draw(*this->blackbox);
