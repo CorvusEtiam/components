@@ -6,31 +6,29 @@
 #include <iostream>
 #include "../util.hpp"
 
-sf::Sprite* SpriteManager::get(const std::string& name) {
+sf::Sprite SpriteManager::get(const std::string& name) {
     if ( sprites.find(name) != sprites.end() ) {
-        return &sprites[name];
+        return sprites[name];
     } else {
         throw std::out_of_range("Sprite not found");
     }
 }
 
-void SpriteManager::load(const std::string& sprite_png, const std::string& sprite_descr)
+void SpriteManager::load(const std::string& texture_file, const std::string& sprite_descr)
 {
-    std::ifstream sprite_names(sprite_descr);
-    if ( ! sprite_names.good() ) {
-        throw std::runtime_error("Sprite description not found");
-    }
-    if (!texture.loadFromFile(sprite_png)) {
-        throw std::runtime_error("Sprite sheet not found");
-    }
+    if ( !texture.loadFromFile(texture_file)) {
+        throw std::runtime_error("Problem with texture loading");
+    } 
     
+    std::ifstream sfile(sprite_descr);
     std::string line;
-    int idx = 0;
-    while ( sprite_names >> line ) {
-        sf::Sprite sprite;
-        sprite.setTexture(texture);
-        sprite.setTextureRect(sf::IntRect(idx * 20, 0, 20, 20));
-        sprites.insert({line, sprite});
+    while ( std::getline(sfile, line) ) {
+        std::cout << line << std::endl;
+        auto vec = split(line, ';');
+        sf::Sprite s;
+        s.setTexture(texture);
+        s.setTextureRect(sf::IntRect(std::stoi(vec[1]), std::stoi(vec[2]), getTilesize().x, getTilesize().y ));
+        sprites.insert(std::make_pair(vec[0], s));
     }
 }
 
@@ -74,3 +72,6 @@ const sf::Vector2f& TextureManager::get(const std::string& name) const
         throw std::out_of_range("Texture not found");
     }
 }
+
+
+

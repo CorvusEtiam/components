@@ -7,17 +7,25 @@
 #include <vector>
 #include "resourcemanager.hpp"
 
+
+class TileEngine;
 class TileMap : public sf::Drawable, public sf::Transformable {
 public:
-    void load(std::string texture_path, std::string texture_descr );
-    
-    void populate(std::vector<std::string> _map, uint width, uint height, sf::Vector2f tilesize); 
-    
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    TileMap(TileEngine * engine) {
+        m_engine = engine;
+    }
+    void init(sf::Vector2i);
+    void populate(std::vector<std::string> _map);
+    void setSize(sf::Vector2i size) { m_size = size; }
+    sf::Vector2i getSize() const { return m_size; }
     
 private:
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    void setTileAt(uint x, uint y, std::string tilename);
     sf::VertexArray m_vertices;
-    TextureManager m_tileset;
+    TileEngine * m_engine;
+    sf::Vector2i m_size;
+        
 };
 
 

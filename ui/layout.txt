@@ -14,4 +14,11 @@
 
 
 Menu - podstawowe opcje, główne moduły gry. Staty, opcje, opisy, komendy
-Map  - [~DONE]
+
+       
+Gui -> | TileMap | ObjectMap | 
+
+ResourceManager passed to ObjectMap and TileMap
+
+TileEngine -> TileMap is rendered first  + ObjectMap is rendered secondly on the same spot. 
+
