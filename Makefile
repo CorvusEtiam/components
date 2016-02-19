@@ -1,15 +1,19 @@
 CPP=clang++
-SFML=-lsfml-graphics -lsfml-window -lsfml-system
+SFML=-lsfml-window -lsfml-graphics -lsfml-system
 FLAGS=-Wpedantic -std=c++11 -g 
 NAME=-o__NAME__
-ENTITY=entitymanager.cpp entitycreator.cpp
-GUI=./ui/resourcemanager.cpp ./ui/tilemap.cpp ./ui/gui.cpp
 
-TARGET=util.cpp $(ENTITY) $(GUI) defs.cpp eventhandler.cpp component.cpp world.cpp game.cpp main.cpp
 
-build: 
-	$(CPP) $(FLAGS) -c $(TARGET) $(GUI) globals.hpp  
-	$(CPP) $(patsubst %.cpp, %.o, $(TARGET)) -oapp $(SFML)
+GUI=./ui/resourcemanager.cpp ./ui/tilemap.cpp ./ui/layer.cpp ./ui/engine.cpp util.cpp
+TARGET=entitymanager.cpp entitycreator.cpp component.cpp defs.cpp world.cpp game.cpp util.cpp
+
+build:
+	$(CPP) $(FLAGS) -c $(GUI)
+	@cp ./ui/*.o ./out
+	$(CPP) $(FLAGS) -c $(TARGET) 
+	@cp ./*.o ./out
+	$(CPP) $(FLAGS) -oapp ./out/*.o main.cpp $(SFML)
+
 field:
 	$(CPP) $(FLAGS) $(SFML) -oproblem problematic.cpp
 clean:

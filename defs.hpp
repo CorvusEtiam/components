@@ -21,13 +21,13 @@ struct Position : public IComponent {
 struct Display : public IComponent {
   sf::Color background;
   sf::Color foreground;
-  char code;
+  std::string sprite_name;
   
   Display() {}
-  Display(sf::Color _b, sf::Color _f, char _c) {
+  Display(sf::Color _b, sf::Color _f, std::string _s) {
     background = _b;
     foreground = _f;
-    code = _c;
+    sprite_name = _s;
   }
  
   ~Display() {}
@@ -86,11 +86,7 @@ class World;
 struct Entity;
 class DisplaySystem : public IDraw, public ISystem {
 public:
-    void draw(Entity& entity, char alter_code);
     void draw(Entity& entity);
-    void draw(uint x, uint y, const char * str) {
-        // getWorld()->gui.map.drawFromAtlas(str, x, y);
-    }
     void update(Entity&);
 };
 
@@ -106,6 +102,8 @@ public:
     void update(Entity&) {}
     bool check(Entity& entity, uint x, uint y);
 };
+
+
 
 class InventorySystem : public ISystem, IDraw {
 public:

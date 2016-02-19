@@ -4,17 +4,7 @@
 #include "defs.hpp"
 #include "util.hpp"
 #include "gamestates.hpp"
-
-
-struct Tile {
-    std::string floor_tile;
-    uint actor; 
-    std::vector<uint> objects;
-    bool passable; 
-    bool visible;
-    bool occupied; // by another actor
-    bool taken;    // by some object
-};
+#include "tile.hpp"
 
 
 class Game;
@@ -36,9 +26,6 @@ class World {
         return map[y*width + x];
     }
     
-    const Tile& at(uint x, uint y) {
-        return map[y*width + x];
-    }
     
 
     
@@ -49,13 +36,14 @@ class World {
         movementSys.setWorld(this);
         collisionSys.setWorld(this);
         game = _game; 
-        if ( !this->loadMapFile("media/simplemap.csv")) {
+        if ( !this->loadMapFile("/home/misiek/Projekt/cpp/tile/media/simplemap.csv")) {
             std::logic_error("Cannot load simplemap.csv");
         }
     }
     void displayMap();
     bool loadMapFile(const std::string& path); 
-    GameState input(sf::Event& ev);
+    // GameState input(sf::Event& ev);
+    void input(sf::Event& ev);
     void draw();
     void update();
     uint width;

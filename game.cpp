@@ -1,36 +1,56 @@
 #include "game.hpp"
+#include <iostream>
+
+Game::Game()
+{
+      std::string home_dir = "/home/misiek/Projekt/cpp/tile/";
+      running = true; 
+      waiting = true;
+      window.create(sf::VideoMode(800,600), "Start");
+      te.init(
+          std::make_pair(home_dir+"media/sprite.png", home_dir+"media/sprite.txt"),
+          std::make_pair(home_dir+"media/sprite.png", home_dir+"media/sprite.txt"),
+          std::make_pair("courier", home_dir+"media/COURIER.TTF"),
+          sf::Vector2i{20,20},
+          18
+         );
+      te.setPosition(sf::Vector2f(100.f,100.f));
+      world.init(this);  
+}
+
 
 void Game::mainloop() {
     waiting = true;
+    std::cout << "MAIN LOOP: " << std::endl;
     while ( running ) {
+   
         input();
         if ( !waiting ) {
             update();
         }
+            
+        window.clear(sf::Color::Black);
+        
         draw();
-        gui.display();
+        window.display();
     }
 }
 
 void Game::draw() {
-   if ( state == GameState::MAP ) {
-       world.draw();
-   }
+    world.draw();
+    te.render(window);
+    
 }
 
 void Game::input() {
   sf::Event ev;
   while ( window.pollEvent(ev) ) {
-      if ( state == GameState::MAP ) {
-        state = world.input(ev);
-      }
+      world.input(ev);
   }
 }
 
 void Game::update() {
-    if ( state == GameState::MAP ) {
-        world.update();
-    }
+    world.update();
     waiting = true;
 }
 

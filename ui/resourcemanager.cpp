@@ -7,17 +7,18 @@
 #include "../util.hpp"
 
 sf::Sprite SpriteManager::get(const std::string& name) {
-    if ( sprites.find(name) != sprites.end() ) {
+   if ( sprites.find(name) != sprites.end() ) {
         return sprites[name];
     } else {
         throw std::out_of_range("Sprite not found");
     }
 }
 
-void SpriteManager::load(const std::string& texture_file, const std::string& sprite_descr)
+void SpriteManager::load(const std::string& sprite_file, const std::string& sprite_descr, sf::Vector2i _tilesize)
 {
-    if ( !texture.loadFromFile(texture_file)) {
-        throw std::runtime_error("Problem with texture loading");
+    setTilesize(_tilesize);
+    if ( !texture.loadFromFile(sprite_file)) {
+        throw std::runtime_error("Problem with sprites loading");
     } 
     
     std::ifstream sfile(sprite_descr);
@@ -27,7 +28,7 @@ void SpriteManager::load(const std::string& texture_file, const std::string& spr
         auto vec = split(line, ';');
         sf::Sprite s;
         s.setTexture(texture);
-        s.setTextureRect(sf::IntRect(std::stoi(vec[1]), std::stoi(vec[2]), getTilesize().x, getTilesize().y ));
+        s.setTextureRect(sf::IntRect(std::stoi(vec[1])*20, std::stoi(vec[2])*20, getTilesize().x, getTilesize().y ));
         sprites.insert(std::make_pair(vec[0], s));
     }
 }
@@ -56,8 +57,8 @@ void TextureManager::load(const std::string& texture_file, const std::string& te
     std::ifstream sfile(texture_descr);
     std::string line;
     while ( std::getline(sfile, line) ) {
-        std::cout << line << std::endl;
         auto vec = split(line, ';');
+        std::cout << "TEXTURE: " << vec[0] << " : X: " << vec[1] << " Y: "<< vec[2] << std::endl;
         sheet.insert(std::make_pair(vec[0], sf::Vector2f(float(std::stoi(vec[1])), float(std::stoi(vec[2])))));
     }
 }

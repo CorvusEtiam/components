@@ -6,6 +6,7 @@
 #include <fstream>
 #include <vector>
 #include "resourcemanager.hpp"
+#include "../tile.hpp"
 
 
 class TileEngine;
@@ -14,9 +15,11 @@ public:
     TileMap(TileEngine * engine) {
         m_engine = engine;
     }
-    void init(sf::Vector2i);
-    void populate(std::vector<std::string> _map);
-    void setSize(sf::Vector2i size) { m_size = size; }
+    void init();
+    void populate(std::vector<Tile> _map);
+    void setSize(sf::Vector2i size) { 
+        m_size = size;
+    }
     sf::Vector2i getSize() const { return m_size; }
     
 private:

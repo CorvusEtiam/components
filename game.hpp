@@ -1,24 +1,22 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "ui/gui.hpp"
+#include "./ui/engine.hpp"
 #include "entity.hpp"
 #include "system.hpp"
 #include "component.hpp"
 #include "world.hpp"
 #include "gamestates.hpp"
 
+
 class Game {
 public:
   bool running;
   bool waiting; 
-  GameState state = GameState::MAP;
+//  GameState state = GameState::MAP;
   World world;
   sf::RenderWindow window;
-  Gui::Gui gui;
-  Game() : running(true), waiting(true) {
-      world.init(this);
-      gui.init(800, 600, "Sample window");      
-  }
+  TileEngine te;
+  Game();
   
   void exit() {
       running = false;

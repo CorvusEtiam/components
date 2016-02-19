@@ -9,67 +9,14 @@
 #include "world.hpp"
 #include "entitymanager.hpp"
 
-//////
-///
-/// \todo (!) Implement DisplaySystem
-/// \brief  Biggest change -- it will built vector of tiles
-/// 
-/////
 
 void DisplaySystem::update(Entity&) { return; }
 
-/* 
-
-void DisplaySystem::draw(Entity& entity, char alter_code) {  
-      auto display = entity.cmgr.getComponent<Display>();
-      auto position = entity.cmgr.getComponent<Position>();
-      sf::RectangleShape rect;
-      sf::Text text;      
-// getWorld()->game->gui.setTile(position->x, position->y, )
-      rect.setPosition({position->x * 20.f, position->y * 20.f});
-      rect.setSize({20.f, 20.f});
-      rect.setFillColor(display->background);
-      text.setFont(getWorld()->game->font);
-      text.setString(alter_code);
-      text.setPosition(position->x * 20.f+ 3, position->y * 20.f - 3);
-      text.setCharacterSize(18);
-      // getWorld()->game->gui.map.drawTile(position, size, background, fore,
-      // code);
-      getWorld()->game->window.draw(rect);
-      getWorld()->game->window.draw(text);
-}
-
 void DisplaySystem::draw(Entity& entity) {  
-      auto position = entity.cmgr.getComponent<Position>();
-      auto display = entity.cmgr.getComponent<Display>();
-      sf::RectangleShape rect;
-      sf::Text text;
-      
-      rect.setPosition(sf::Vector2f(position->x * 20.f, position->y * 20.f));
-      rect.setSize({20.f, 20.f});
-      text.setPosition(position->x * 20.f + 3, position->y * 20.f - 3);
-      text.setCharacterSize(18);
-      text.setFont(getWorld()->game->font);
-      text.setString(sf::String(display->code));
-      
-      
-      
-      if ( entity.cmgr.hasComponent<Floor>() ) {
-        rect.setFillColor(display->background);
-        text.setColor(display->foreground);  
-      } else {
-        auto backtile = getWorld()->map[position->y][position->x].floor;
-        auto backdisp = getWorld()->emgr.getCompManager(backtile).getComponent<Display>();
-        rect.setFillColor(backdisp->background);
-        text.setColor(display->foreground);
-      }
-      
-      getWorld()->game->window.draw(rect);
-      getWorld()->game->window.draw(text);
-
+     auto display = entity.cmgr.getComponent<Display>();
+     auto position = entity.cmgr.getComponent<Position>();
+     getWorld()->game->te.createObject(display->sprite_name, position->x, position->y);
 }
-
-*/
 
 void MovementSystem::update(Entity& entity, int dx, int dy)
 {
@@ -86,26 +33,24 @@ void MovementSystem::update(Entity& entity, int dx, int dy)
         return;
 
         getWorld()->at(position->x, position->y).occupied = false;
-        getWorld()->at(position->x+dx, position->y+dy) = getWorld()->at(position->x, position->y).actor;
-        getWorld()->at(position->x, position->y).occupied = true;
+        getWorld()->at(position->x+dx, position->y+dy).actor = getWorld()->at(position->x, position->y).actor;
+        getWorld()->at(position->x+dx, position->y+dy).occupied = true;
         position->x += dx;
         position->y += dy;
 }
-
-
 
 bool CollisionSystem::check(Entity& , uint x, uint y)
 {
     std::cout << "MOVED -> " << x << " " << y << std::endl;
     auto tile = getWorld()->at(x,y);
-    if ( !tile.occupied ) {
-        return tile.passable;
-    } else {
-        return false;
-    }
+    if ( !tile.occupied ) 
+        return tile.passable;    
+    
 }
-/*
 
+
+
+/*
 void InventorySystem::_displayMsg(std::vector<uint> data, uint x, uint y)
 {
     std::string line;
@@ -135,7 +80,7 @@ void InventorySystem::draw(Entity& entity)
 {
     
     
-    /* Leave it for better time. Turn into proper Gui subsystem; connect with main;
+     * Leave it for better time. Turn into proper Gui subsystem; connect with main;
      * For now console output have to be enough!!
     sf::RectangleShape outer;
     sf::RectangleShape rect;
