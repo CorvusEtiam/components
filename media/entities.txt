@@ -1,0 +1,17 @@
+@file:
+
+id : {
+    NameOfComponent : {
+        <data>
+    },
+    DisplayComponent : {
+        background: 
+    }
+}
+
+"string"
+123 # number
+124.93
+true | false
+# comment
+

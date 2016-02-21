@@ -1,0 +1,14 @@
+5;5;;;
+1;1;1;1;1
+1;1;1;1;1
+1;0;0;0;1
+1;0;0;0;1
+1;1;0;1;1
+@legend;0;WATER;;
+@legend;1;GRASS;;
+@use_dict;entities.txt;;;
+@place;<id>;<x>;<y>;
+#id - id from entities.dat file;;;;
+
+
+

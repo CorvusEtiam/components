@@ -43,9 +43,11 @@ bool CollisionSystem::check(Entity& , uint x, uint y)
 {
     std::cout << "MOVED -> " << x << " " << y << std::endl;
     auto tile = getWorld()->at(x,y);
-    if ( !tile.occupied ) 
+    if ( !tile.occupied ) { 
         return tile.passable;    
-    
+    } else {
+        return false;
+    }
 }
 
 
