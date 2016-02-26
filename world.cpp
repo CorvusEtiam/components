@@ -22,12 +22,20 @@ bool World::loadMapFile(const std::string& path)
     game->te.setSize(sf::Vector2i(width, height));
     uint y = 0;
     while ( std::getline(file, line) ) {
-        if ( line[0] == '@' || line['#'] ) { continue; }
+        if ( line[0] == '@' || line[0] == '#' ) { continue; }
         auto data = split(line, ';');
         for ( uint x = 0; x < data.size(); ++x ) {
             int val = std::stoi(data[x]);
-            std::cout << val << " | ";
-            switch(val) {
+	    std::cout << x << " " << y << std::endl;
+            /// \todo Rewrite into something more pleasant and extensible
+	    ///       index by number taken from csv file -> identifier from legend.file -> set proper tile
+	    switch(val) {
+                case 4:
+                    createObstacle(this, Types::WALL, {x,y});
+                    break;
+                case 3:
+                    createFloorTile(this, Types::MAGMA, {x,y});
+                    break;
                 case 2:
                     createFloorTile(this, Types::WATER, {x,y});
                     break;
@@ -35,8 +43,15 @@ bool World::loadMapFile(const std::string& path)
                     createFloorTile(this, Types::STONE, {x,y});
                     break;
                 case 0:
-                default:
                     createFloorTile(this, Types::GRASS, {x,y});
+                    break;
+                default:
+                    auto& tile = at(x,y);
+                    tile.x = x;
+                    tile.y = y;
+                    tile.floor_tile = "void";
+                    tile.passable = false;
+                    tile.visible = true;
                     break;
             }
             
@@ -45,18 +60,22 @@ bool World::loadMapFile(const std::string& path)
         y++;
     }    
     createPlayer(this, "M", {0,0});
+    createItem(this, "Sword", "magma", sf::Color::White, {0,1});
     return true;
     
 }
 
 void World::draw() {
 //    std::cout << "[LOG] Draw started" << std::endl;
-    
-    game->te.createMap(map);
+    if ( !this->m_drawn ) { 
+        game->te.createMap(map);
+        this->m_drawn = true;
+    }
     
     for ( auto& entity : emgr.entities ) {
         displaySys.draw(entity.second); 
     }
+    displaySys.draw(emgr.getPlayer());
 }
 
 void World::update() {
@@ -89,24 +108,26 @@ void World::input(sf::Event& ev) {
     if ( sf::Keyboard::isKeyPressed(sf::Keyboard::W) ) {
         top = true;
         left = right = down = false;
-        //  game->gui.moveCamera(0, 20);
         game->waiting = false;
     } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::S) ) {
         down = true;
         left = right = top = game->waiting =  false;
-        //    game->gui.moveCamera(0, -20);
     } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) ) {
         left = true;
         top = right = down = game->waiting =  false;
-        //    game->gui.moveCamera(-20, 0);
     } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::D) ) {
         right = true;
         left = top = down = game->waiting =  false;
-        //    game->gui.moveCamera(20, 0);
     } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::E) ) {
         Position * pos = emgr.getComponentFromEntity<Position>(emgr.getPlayer());
-        std::cout << this->at(pos->x, pos->y) << std::endl;
+        std::cout << at(pos->x, pos->y) << std::endl;
+    } else if  ( sf::Keyboard::isKeyPressed(sf::Keyboard::T) ) {
+	Position * pos = emgr.getComponentFromEntity<Position>(emgr.getPlayer());
+	if ( at(pos->x, pos->y).objects.size() > 0 ) {
+	  inventorySys.take(emgr.getPlayer(), at(pos->x, pos->y).objects[0] );
+	}
+      
     }
-
+ 
 }
 

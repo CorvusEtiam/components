@@ -28,7 +28,8 @@ void SpriteManager::load(const std::string& sprite_file, const std::string& spri
         auto vec = split(line, ';');
         sf::Sprite s;
         s.setTexture(texture);
-        s.setTextureRect(sf::IntRect(std::stoi(vec[1])*20, std::stoi(vec[2])*20, getTilesize().x, getTilesize().y ));
+        s.setTextureRect(sf::IntRect(std::stoi(vec[1])*20, 
+                    std::stoi(vec[2])*20, getTilesize().x, getTilesize().y ));
         sprites.insert(std::make_pair(vec[0], s));
     }
 }
@@ -74,5 +75,7 @@ const sf::Vector2f& TextureManager::get(const std::string& name) const
     }
 }
 
+// loadLegendFile() -> map tile_name : int 
+// getResource("name") -> path to resource
 
 

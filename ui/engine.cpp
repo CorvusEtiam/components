@@ -24,6 +24,9 @@ void TileEngine::createObject(std::string name, uint x, uint y)
 
 void TileEngine::render(sf::RenderWindow& target)
 {
+    sf::View view = target.getDefaultView();
+    view.setCenter(target.getSize().x / 2 + m_center_x, target.getSize().y / 2 + m_center_y);
+    target.setView(view);
     target.draw(*map);
     target.draw(*objects);
 }

@@ -9,9 +9,8 @@ TARGET=entitymanager.cpp entitycreator.cpp component.cpp defs.cpp world.cpp game
 
 build:
 	$(CPP) $(FLAGS) -c $(GUI)
-	@cp ./ui/*.o ./out
 	$(CPP) $(FLAGS) -c $(TARGET) 
-	@cp ./*.o ./out
+	@mv *.o ./out
 	$(CPP) $(FLAGS) -oapp ./out/*.o main.cpp $(SFML)
 
 field:

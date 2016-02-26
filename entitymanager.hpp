@@ -2,19 +2,14 @@
 #include <vector>
 #include <map>
 #include <queue>
+#include <stdexcept>
+#include <iostream>
 #include <type_traits>
 #include "entity.hpp"
 #include "system.hpp"
 class World;
 
 
-enum class Kind {
-    Item,
-    Actor,
-    Obstacle,
-    Player,
-    Floor
-};
 
 typedef uint uint32_t;
 
@@ -38,7 +33,12 @@ public:
   
     
     Entity& getEntity(uint id) {
-      return entities[id];
+        if ( entities.find(id) != entities.end() ) 
+        { return entities[id]; }
+        else {
+            std::cerr << "NUMBER: " << id << std::endl;
+            throw std::out_of_range("entity not found");
+        }
     }
     
     Entity& getPlayer() {

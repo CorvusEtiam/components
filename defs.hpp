@@ -4,6 +4,8 @@
 #include "component.hpp"
 #include "system.hpp"
 
+typedef bool trait;
+
 struct Position : public IComponent {
     std::size_t id;
     int x;
@@ -50,16 +52,16 @@ struct Description : public IComponent {
 };
 
 struct Item : public IComponent {
-    bool pickable;
-    bool dropable;
-    bool sellable;
+    trait pickable;
+    trait dropable;
+    trait sellable;
     uint price;
     
     Item() {}
     Item(bool pick = true, bool drop = true, bool sell = false, uint prc = 0 ) {
         pickable = pick; // can be picked
         dropable = drop; // can be dropped
-        sellable = sell;
+        sellable = sell; // can be bought and sold
         price    = prc;
     }
     ~Item() {}
@@ -81,6 +83,8 @@ struct Storage : public IComponent {
     
     ~Storage() {}
 }; 
+
+
 
 class World;
 struct Entity;
@@ -107,11 +111,11 @@ public:
 
 class InventorySystem : public ISystem, IDraw {
 public:
-    void draw(Entity& entity);
+    void draw(Entity& entity) {}
     void update(Entity&) {}
-    
+      
     void take(Entity& entity, uint object);
-    void drop(Entity& entity, uint object); 
+    void drop(Entity& entity, uint object) {} 
 private:
     void _displayMsg(std::vector<uint> data, uint width, uint height, uint x, uint y);
     

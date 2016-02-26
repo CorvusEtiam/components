@@ -11,6 +11,7 @@ uint Counter::id = 0;
 uint EntityManager::createEntity(Kind kind)
 {
     auto entity = Entity();
+    entity.kind = kind;
     entity.world = world;
     uint id = Counter::get();
     entity.id = id;

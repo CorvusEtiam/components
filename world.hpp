@@ -10,6 +10,7 @@
 class Game;
 class World {
     private:
+        bool m_drawn = false;
         bool left;
         bool right;
         bool top;
@@ -20,6 +21,7 @@ class World {
     DisplaySystem displaySys;
     MovementSystem movementSys;
     CollisionSystem collisionSys;
+    InventorySystem inventorySys;
     Game * game;
 
     Tile& at(uint x, uint y) {

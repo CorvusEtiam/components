@@ -1,5 +1,5 @@
-#include "game.hpp"
 #include <iostream>
+#include "game.hpp"
 
 Game::Game()
 {
@@ -14,10 +14,11 @@ Game::Game()
           sf::Vector2i{20,20},
           18
          );
-      te.setPosition(sf::Vector2f(100.f,100.f));
+//      te.setPosition(sf::Vector2f(0.f,0.f));
+//      te.centerCamera(0,0);
       world.init(this);  
+      
 }
-
 
 void Game::mainloop() {
     waiting = true;
@@ -39,7 +40,6 @@ void Game::mainloop() {
 void Game::draw() {
     world.draw();
     te.render(window);
-    
 }
 
 void Game::input() {

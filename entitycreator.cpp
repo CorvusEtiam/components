@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <SFML/Graphics.hpp>
 #include "entitycreator.hpp"
 #include "entitymanager.hpp"
@@ -12,6 +13,9 @@ void createPlayer(World * world, std::string name, Coord cord)
     world->emgr.getCompManager(id).createComponent<Display>(sf::Color::Black, sf::Color::Blue, "player")
                .createComponent<Description>(name)
                .createComponent<Position>(cord.x, cord.y);
+    auto& player = world->emgr.getEntity(id);
+    player.flags["canPick"] = true;
+	       
     auto& tile = world->at(cord.x, cord.y);
     tile.actor = id;
     tile.occupied = true;
@@ -26,6 +30,7 @@ void createFloorTile(World * world, Types::FloorType type, Coord cord)
     using namespace Types;
     switch ( type ) {
         case MAGMA:
+            tile.floor_tile = "magma";
             tile.visible = true;
             tile.passable = false;
             break;
@@ -40,7 +45,7 @@ void createFloorTile(World * world, Types::FloorType type, Coord cord)
             tile.passable = true;
             break;
         case STONE:
-            tile.floor_tile = "wall";
+            tile.floor_tile = "stone";
             tile.visible = true;
             tile.passable = false;
             break;
@@ -70,3 +75,23 @@ void createObstacle(World * world, Types::ObstacleType type, Coord cord)
 
 
 
+
+void createItem(
+  World * world, 
+  std::string item_name, 
+  std::string item_tile, 
+  sf::Color color, 
+  Coord cord,
+  bool pickable, 
+  bool buyable, 
+  uint price) {
+      auto ent = world->emgr.createEntity(Kind::Item);
+      world->emgr.getCompManager(ent)
+                 .createComponent<Item>(pickable, buyable, buyable,price)
+		 .createComponent<Display>(sf::Color::Black, color, item_tile)
+		 .createComponent<Description>(item_name)
+		 .createComponent<Position>(cord.x, cord.y);
+      auto& tile = world->at(cord.x, cord.y);
+      tile.objects.push_back(ent);
+      tile.taken = true;
+}

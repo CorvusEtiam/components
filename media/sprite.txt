@@ -1,4 +1,7 @@
 grass;0;0
-wall;1;0
+stone;1;0
 water;2;0
 player;3;0
+magma;0;1
+wall;1;1
+void;2;1
