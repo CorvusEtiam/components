@@ -1,6 +1,6 @@
 #include "eventhandler.hpp"
 
-void EventHandler::trigger(const std::string& _trigName, Entity* _target)
+void EventHandler::trigger(const std::string& _trigName, Entity * _target)
 {
     auto it =  events.find(_trigName);
     if ( it != events.end() ) {

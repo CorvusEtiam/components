@@ -26,7 +26,7 @@ bool World::loadMapFile(const std::string& path)
         auto data = split(line, ';');
         for ( uint x = 0; x < data.size(); ++x ) {
             int val = std::stoi(data[x]);
-	    std::cout << x << " " << y << std::endl;
+//	    std::cout << x << " " << y << std::endl;
             /// \todo Rewrite into something more pleasant and extensible
 	    ///       index by number taken from csv file -> identifier from legend.file -> set proper tile
 	    switch(val) {
@@ -56,11 +56,12 @@ bool World::loadMapFile(const std::string& path)
             }
             
         }
-        std::cout << std::endl;
+  //      std::cout << std::endl;
         y++;
     }    
     createPlayer(this, "M", {0,0});
     createItem(this, "Sword", "magma", sf::Color::White, {0,1});
+    std::cout << "SEGFAULT: >> " << at(0,1).objects.size() << std::endl;
     return true;
     
 }
@@ -90,9 +91,7 @@ void World::update() {
         movementSys.update(emgr.getPlayer(), 0, 1);
     }
     
-     for ( auto& entity : emgr.entities ) {
-        displaySys.update(entity.second); 
-     }
+     
      left = right = top = down = false;
 }
 
@@ -118,16 +117,17 @@ void World::input(sf::Event& ev) {
     } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::D) ) {
         right = true;
         left = top = down = game->waiting =  false;
-    } else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::E) ) {
-        Position * pos = emgr.getComponentFromEntity<Position>(emgr.getPlayer());
-        std::cout << at(pos->x, pos->y) << std::endl;
-    } else if  ( sf::Keyboard::isKeyPressed(sf::Keyboard::T) ) {
+    }  else if  ( sf::Keyboard::isKeyPressed(sf::Keyboard::T) ) {
 	Position * pos = emgr.getComponentFromEntity<Position>(emgr.getPlayer());
 	if ( at(pos->x, pos->y).objects.size() > 0 ) {
-	  inventorySys.take(emgr.getPlayer(), at(pos->x, pos->y).objects[0] );
+	  inventorySys.take(emgr.getPlayer(), emgr.getEntity(at(pos->x, pos->y).objects[0]), {pos->x, pos->y});
 	}
-      
+    }  else if ( sf::Keyboard::isKeyPressed(sf::Keyboard::P) ) {
+	Position * pos =   emgr.getComponentFromEntity<Position>(emgr.getPlayer());
+        Storage  * store = emgr.getComponentFromEntity<Storage>(emgr.getPlayer());
+        if ( store->items.size() > 0 ) {
+        inventorySys.drop(emgr.getPlayer(), emgr.getEntity(store->items[0]) ,{pos->x, pos->y});
+        }
     }
- 
 }
 

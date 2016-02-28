@@ -19,44 +19,42 @@ class EntityManager {
 public:
     uint createEntity(Kind kind); 
     
-    
     template<typename T>
     T * getComponentFromEntity(uint handle) {
       return getCompManager(handle).getComponent<T>();
     }
-  
  
     template<typename T>
-    T * getComponentFromEntity(Entity& entity) {
-        return entity.cmgr.getComponent<T>();
+    T * getComponentFromEntity(Entity * entity) {
+        return entity->cmgr.getComponent<T>();
     }
-  
     
-    Entity& getEntity(uint id) {
-        if ( entities.find(id) != entities.end() ) 
-        { return entities[id]; }
-        else {
+    Entity * getEntity(uint id) {
+	std::cout << "Entity: " << id << std::endl;
+	if ( entities.find(id) != entities.end() ) {
+	  return entities.at(id);
+	} else {
             std::cerr << "NUMBER: " << id << std::endl;
             throw std::out_of_range("entity not found");
         }
     }
     
-    Entity& getPlayer() {
+    Entity * getPlayer() {
         return getEntity(kinds[Kind::Player][0]);
     }
     
-    uint setEntity(Kind kind, Entity entity);
+    uint setEntity(Kind kind, Entity * entity);
     
     void removeEntity(uint id) {
         entities.erase(entities.find(id));
     } 
     
     ComponentManager& getCompManager(uint id) {
-      return getEntity(id).cmgr;
+      return getEntity(id)->cmgr;
     }
 
     World * world;
-    std::map<uint, Entity> entities;
+    std::map<uint, Entity*> entities;
     std::map<Kind, Group> kinds;
 };
 

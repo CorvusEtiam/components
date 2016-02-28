@@ -12,10 +12,11 @@ void createPlayer(World * world, std::string name, Coord cord)
     auto id = world->emgr.createEntity(Kind::Player);
     world->emgr.getCompManager(id).createComponent<Display>(sf::Color::Black, sf::Color::Blue, "player")
                .createComponent<Description>(name)
-               .createComponent<Position>(cord.x, cord.y);
-    auto& player = world->emgr.getEntity(id);
-    player.flags["canPick"] = true;
-	       
+               .createComponent<Position>(cord.x, cord.y)
+               .createComponent<Storage>();
+    Entity * player = world->emgr.getEntity(id);
+    player->flags["canPick"] = true;
+    player->flags["canDrop"] = true;
     auto& tile = world->at(cord.x, cord.y);
     tile.actor = id;
     tile.occupied = true;
@@ -85,7 +86,7 @@ void createItem(
   bool pickable, 
   bool buyable, 
   uint price) {
-      auto ent = world->emgr.createEntity(Kind::Item);
+      uint ent = world->emgr.createEntity(Kind::Item);
       world->emgr.getCompManager(ent)
                  .createComponent<Item>(pickable, buyable, buyable,price)
 		 .createComponent<Display>(sf::Color::Black, color, item_tile)

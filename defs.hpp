@@ -52,9 +52,9 @@ struct Description : public IComponent {
 };
 
 struct Item : public IComponent {
-    trait pickable;
-    trait dropable;
-    trait sellable;
+    bool pickable;
+    bool dropable;
+    bool sellable;
     uint price;
     
     Item() {}
@@ -88,34 +88,35 @@ struct Storage : public IComponent {
 
 class World;
 struct Entity;
+
 class DisplaySystem : public IDraw, public ISystem {
 public:
-    void draw(Entity& entity);
-    void update(Entity&);
+    void draw(Entity* entity);
+    void update(Entity*);
 };
 
 class MovementSystem : public ISystem {
 public:
     
-    void update(Entity&) {return;}
-    void update(Entity& entity, int dx, int dy);
+    void update(Entity*) {return;}
+    void update(Entity* entity, int dx, int dy);
 };
 
 class CollisionSystem : public ISystem {
 public:
-    void update(Entity&) {}
-    bool check(Entity& entity, uint x, uint y);
+    void update(Entity*) {}
+    bool check(Entity* entity, uint x, uint y);
 };
 
 
 
 class InventorySystem : public ISystem, IDraw {
 public:
-    void draw(Entity& entity) {}
-    void update(Entity&) {}
+    void draw(Entity* ) {}
+    void update(Entity*) {}
       
-    void take(Entity& entity, uint object);
-    void drop(Entity& entity, uint object) {} 
+    void take(Entity* entity, Entity* object, sf::Vector2i coord);
+    void drop(Entity* entity, Entity * object, sf::Vector2i coord); 
 private:
     void _displayMsg(std::vector<uint> data, uint width, uint height, uint x, uint y);
     

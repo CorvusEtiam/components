@@ -37,6 +37,7 @@ class World {
         displaySys.setWorld(this);
         movementSys.setWorld(this);
         collisionSys.setWorld(this);
+	inventorySys.setWorld(this);
         game = _game; 
         if ( !this->loadMapFile("/home/misiek/Projekt/cpp/tile/media/simplemap.csv")) {
             std::logic_error("Cannot load simplemap.csv");

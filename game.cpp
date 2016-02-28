@@ -45,7 +45,7 @@ void Game::draw() {
 void Game::input() {
   sf::Event ev;
   while ( window.pollEvent(ev) ) {
-      world.input(ev);
+      world.input(ev); // -> GameState -> [gui,world]
   }
 }
 

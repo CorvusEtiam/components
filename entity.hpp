@@ -5,6 +5,7 @@
 #include "util.hpp"
 #include "eventhandler.hpp"
 #include <unordered_map>
+#include <iostream>
 #include <string>
 enum class Kind {
     Item,
@@ -19,10 +20,14 @@ class World;
 struct Entity {
 public:
   Entity() {}
-  
-  bool operator==(Entity& other) {
-    return other.id == id;
+  ~Entity() {
+    std::cout << "DEALLOC " << id << std::endl;
   }
+  
+  bool operator==(Entity * other) {
+    return other->id == id;
+  }
+  
   bool haveTrait(std::string s) noexcept {
     if ( flags.find(s) != flags.end() ) {
       return flags[s];
